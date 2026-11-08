@@ -1,0 +1,6 @@
+{
+  "name": "Nghĩa trang Cổ Rừng Đá Xám",
+  "description": "Hồ sơ nhân vật và lưu trữ ký ức phong cách Gothic cổ kính giữa màn sương và tuyết rơi vĩnh cửu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,425 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: 'SVN-Bellwethers';
+  src: url('/fonts/Bellwethers.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'HP0014hang1oly';
+  src: url('/fonts/HP0014hang1oly.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+@layer base {
+  :root {
+    --font-gothic: 'Grenze Gotisch', 'Cormorant Garamond', Georgia, serif;
+    --font-serif-title: 'Cormorant Garamond', Georgia, serif;
+    --font-bellwethers: 'SVN-Bellwethers', cursive;
+    --font-hp001: 'HP0014hang1oly', serif;
+    --font-sans-clean: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Spectral', Georgia, serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans-clean);
+    background-color: #030304;
+    color: #e5e5e5;
+    overflow-x: hidden;
+  }
+}
+
+.font-gothic {
+  font-family: var(--font-gothic);
+}
+
+.font-serif-title {
+  font-family: var(--font-serif-title);
+}
+
+.font-bellwethers {
+  font-family: var(--font-bellwethers);
+}
+
+.font-hp001 {
+  font-family: var(--font-hp001);
+}
+
+.font-sans-clean {
+  font-family: var(--font-sans-clean);
+}
+
+.font-literary {
+  font-family: var(--font-body);
+}
+
+.font-tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Deep True Black Background #030304 */
+.bg-gothic-ombre {
+  background-color: #030304;
+}
+
+/* Unified Monochrome Card Surface */
+.bg-stone-ombre {
+  background: linear-gradient(180deg, #151515 0%, #111111 60%, #0d0d0d 100%);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+}
+
+/* Title Silver-to-Ash Grey Ombre Text Effect */
+.text-ombre-gothic {
+  background: linear-gradient(180deg, #f4f4f5 0%, #d4d4d8 48%, #a1a1aa 85%, #71717a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.95));
+}
+
+/* Stippled Silver-Chalk Engraved Title Effect Matching Gothic Frame */
+.text-engraved-gothic {
+  color: #e4e4e7;
+  text-shadow:
+    0 1px 0 #18181b,
+    0 2px 14px rgba(0, 0, 0, 0.95),
+    0 0 28px rgba(212, 212, 216, 0.14);
+}
+
+/* Weathered Lithograph Chalk-Print Filter Matching Memento Mori & Monroe Ashworth Filigree */
+.gothic-chalk-print {
+  color: #e8e8ec;
+  filter: url(#gothic-chalk-print) drop-shadow(0 2px 10px rgba(0, 0, 0, 0.92));
+}
+
+/* Tall, Ultra-Condensed Hairline Victorian Serif Lockup (Memento Mori Proportion) */
+.gothic-condensed-serif {
+  font-family: var(--font-serif-title);
+  font-weight: 300;
+  color: #ececef;
+  display: inline-block;
+  transform: scaleX(0.76) scaleY(1.28);
+  transform-origin: center center;
+}
+
+/* Condensed Engraved Roman Capitals for Realm Portals (Monroe Ashworth Proportion) */
+.gothic-condensed-portal {
+  font-family: var(--font-serif-title);
+  font-weight: 400;
+  color: #e8e8ec;
+  display: inline-block;
+  transform: scaleX(0.84) scaleY(1.18);
+  transform-origin: center center;
+}
+
+/* Tileable Analog Film Grain & Chalk Dust Overlay */
+.bg-gothic-grain-tile {
+  background-image: url('/assets/aistudio/gothic_grain_tile.png');
+  background-repeat: repeat;
+  background-size: 180px 180px;
+}
+
+/* Unified 9-Slice Gothic Frame (Corner Filigree + Inner Stepped Frame + Outer Lace Border as One Unit) */
+.gothic-unified-frame {
+  border-style: solid;
+  border-width: clamp(92px, 23vmin, 220px);
+  border-image-source: url('/assets/aistudio/gothic_unified_9slice.png?v=2');
+  border-image-slice: 360 360 360 360;
+  border-image-repeat: round;
+}
+
+/* Unified 9-Slice Gothic Frame Adapted for Character Detail Modal */
+.gothic-modal-unified-frame {
+  border-style: solid;
+  border-width: clamp(82px, 21vmin, 155px);
+  border-image-source: url('/assets/aistudio/gothic_unified_9slice.png?v=2');
+  border-image-slice: 360 360 360 360;
+  border-image-repeat: round;
+}
+
+/* Spinning Vinyl Record Animation */
+@keyframes vinylSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-vinyl-spin {
+  animation: vinylSpin 9s linear infinite;
+  will-change: transform;
+}
+
+/* Ethereal Drifting Mist & Ghostly Motion */
+@keyframes mistDriftSlow {
+  0% {
+    transform: translate3d(-6%, 0%, 0) scale(1.05);
+    opacity: 0.22;
+  }
+  50% {
+    transform: translate3d(6%, -2%, 0) scale(1.14);
+    opacity: 0.38;
+  }
+  100% {
+    transform: translate3d(-6%, 0%, 0) scale(1.05);
+    opacity: 0.22;
+  }
+}
+
+@keyframes mistDriftReverse {
+  0% {
+    transform: translate3d(6%, 1%, 0) scale(1.08);
+    opacity: 0.18;
+  }
+  50% {
+    transform: translate3d(-6%, -1%, 0) scale(1.02);
+    opacity: 0.34;
+  }
+  100% {
+    transform: translate3d(6%, 1%, 0) scale(1.08);
+    opacity: 0.18;
+  }
+}
+
+@keyframes ghostlyFloat {
+  0%, 100% {
+    filter: blur(0px) contrast(1.08) brightness(0.96);
+    transform: translate3d(0, 0px, 0) scale(1);
+  }
+  50% {
+    filter: blur(0.8px) contrast(1.16) brightness(1.04);
+    transform: translate3d(0, -4px, 0) scale(1.015);
+  }
+}
+
+.animate-mist-slow {
+  animation: mistDriftSlow 20s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-mist-reverse {
+  animation: mistDriftReverse 26s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-spectral {
+  animation: ghostlyFloat 8s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-mist-slow,
+  .animate-mist-reverse,
+  .animate-spectral,
+  .animate-vinyl-spin {
+    animation: none !important;
+  }
+}
+
+/* ================= ENTRANCE CENTERPIECE RESPONSIVE TYPOGRAPHY & HARMONIZED SPACING ================= */
+/* Base: Mobile Screen (< 600px width) — Full Mobile Proportions Matching User's Mobile Screenshot */
+.entrance-container {
+  max-width: 320px;
+  padding: 6px 10px;
+}
+.entrance-crest {
+  width: 178px;
+  margin-bottom: 7px;
+}
+.entrance-overline {
+  font-size: 11.5px !important;
+  letter-spacing: 0.24em;
+  margin-bottom: 3px;
+  gap: 6px;
+}
+.entrance-title {
+  font-size: 25.5px !important;
+  letter-spacing: 0.04em;
+  line-height: 1.12;
+  white-space: nowrap;
+}
+.entrance-divider {
+  max-width: 166px;
+  margin-top: 7px;
+  margin-bottom: 7px;
+  gap: 8px;
+  font-size: 19px;
+}
+.entrance-quote {
+  font-size: 13.5px !important;
+  max-width: 262px;
+  line-height: 1.55;
+}
+.entrance-buttons-wrap {
+  flex-direction: column;
+  margin-top: 13px;
+  gap: 8px;
+}
+.entrance-button {
+  min-width: 156px;
+  padding: 7px 14px;
+}
+.entrance-button-text {
+  font-size: 11.5px !important;
+  letter-spacing: 0.15em;
+  gap: 5px;
+}
+
+/* Tablet & Web [Device] Mode (Width >= 600px) — Exact 1:1 Mobile Layout & Proportions Scaled to Web */
+@media (min-width: 600px) {
+  .entrance-container {
+    max-width: 530px;
+    padding: 8px 16px;
+  }
+  .entrance-crest {
+    width: 266px;
+    margin-bottom: 10px;
+  }
+  .entrance-overline {
+    font-size: 18px !important;
+    letter-spacing: 0.24em;
+    margin-bottom: 4px;
+    gap: 10px;
+  }
+  .entrance-title {
+    font-size: 38px !important;
+    letter-spacing: 0.04em;
+    line-height: 1.12;
+  }
+  .entrance-divider {
+    max-width: 247px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    gap: 11px;
+    font-size: 30px;
+  }
+  .entrance-quote {
+    font-size: 21px !important;
+    max-width: 390px;
+    line-height: 1.55;
+  }
+  .entrance-buttons-wrap {
+    flex-direction: column;
+    margin-top: 17px;
+    gap: 11px;
+  }
+  .entrance-button {
+    min-width: 210px;
+    padding: 10px 19px;
+  }
+  .entrance-button-text {
+    font-size: 18px !important;
+    letter-spacing: 0.15em;
+    gap: 8px;
+  }
+}
+
+/* Desktop Web & Full-Screen [Device] Viewport (Width >= 900px) — Exact 2.55x Scale of Mobile Presentation */
+@media (min-width: 900px) {
+  .entrance-container {
+    max-width: 714px;
+    padding: 10px 20px;
+  }
+  .entrance-crest {
+    width: 357px;
+    margin-bottom: 13px;
+  }
+  .entrance-overline {
+    font-size: 24px !important;
+    letter-spacing: 0.24em;
+    margin-bottom: 5px;
+    gap: 13px;
+  }
+  .entrance-title {
+    font-size: 51px !important;
+    letter-spacing: 0.04em;
+    line-height: 1.12;
+  }
+  .entrance-divider {
+    max-width: 332px;
+    margin-top: 13px;
+    margin-bottom: 13px;
+    gap: 15px;
+    font-size: 40px;
+  }
+  .entrance-quote {
+    font-size: 28px !important;
+    max-width: 522px;
+    line-height: 1.55;
+  }
+  .entrance-buttons-wrap {
+    flex-direction: column;
+    margin-top: 23px;
+    gap: 15px;
+  }
+  .entrance-button {
+    min-width: 280px;
+    padding: 13px 26px;
+  }
+  .entrance-button-text {
+    font-size: 24px !important;
+    letter-spacing: 0.15em;
+    gap: 10px;
+  }
+}
+
+/* Large Desktop Web (Width >= 1280px) — Same Mobile Presentation & Proportions */
+@media (min-width: 1280px) {
+  .entrance-container {
+    max-width: 820px;
+    padding: 12px 24px;
+  }
+  .entrance-crest {
+    width: 410px;
+    margin-bottom: 15px;
+  }
+  .entrance-overline {
+    font-size: 27px !important;
+    letter-spacing: 0.24em;
+    margin-bottom: 6px;
+    gap: 15px;
+  }
+  .entrance-title {
+    font-size: 58px !important;
+    letter-spacing: 0.04em;
+    line-height: 1.12;
+  }
+  .entrance-divider {
+    max-width: 380px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    gap: 17px;
+    font-size: 46px;
+  }
+  .entrance-quote {
+    font-size: 32px !important;
+    max-width: 598px;
+    line-height: 1.55;
+  }
+  .entrance-buttons-wrap {
+    flex-direction: column;
+    margin-top: 26px;
+    gap: 17px;
+  }
+  .entrance-button {
+    min-width: 320px;
+    padding: 15px 30px;
+  }
+  .entrance-button-text {
+    font-size: 27px !important;
+    letter-spacing: 0.15em;
+    gap: 11px;
+  }
+}
+
+
