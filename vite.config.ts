@@ -5,19 +5,32 @@ import fs from 'fs';
 import path from 'path';
 
 const root = process.cwd();
+const mediaExts = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.mp3', '.wav', '.ogg', '.ttf', '.otf', '.woff', '.woff2'];
+const codeExts = ['.tsx', '.ts', '.jsx', '.js', '.css', '.html'];
 
-if (fs.existsSync(path.join(root, 'index.html'))) {
-  let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  html = html.replace('/src/main.tsx', '/main.tsx').replace('/src/index.tsx', '/main.tsx').replace('/src/index.css', '/index.css');
-  fs.writeFileSync(path.join(root, 'index.html'), html);
+const allFiles = fs.readdirSync(root);
+const mediaFiles = allFiles.filter(f => mediaExts.some(ext => f.toLowerCase().endsWith(ext)));
+
+for (const file of allFiles) {
+  if (codeExts.some(ext => file.toLowerCase().endsWith(ext)) && file !== 'vite.config.ts') {
+    const filePath = path.join(root, file);
+    let content = fs.readFileSync(filePath, 'utf8');
+    content = content.replace('/src/main.tsx', '/main.tsx').replace('/src/index.tsx', '/main.tsx').replace('/src/index.css', '/index.css');
+    for (const media of mediaFiles) {
+      const escaped = media.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(['"(])(?:[^'"()]*?\\/)?${escaped}(['")])`, 'g');
+      content = content.replace(regex, `$1/${media}$2`);
+    }
+    fs.writeFileSync(filePath, content);
+  }
 }
 
-const publicDir = path.join(root, 'public');
-if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
-const mediaExts = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.mp3', '.wav', '.ogg', '.ttf', '.otf', '.woff', '.woff2'];
-for (const file of fs.readdirSync(root)) {
-  if (mediaExts.some(ext => file.toLowerCase().endsWith(ext))) {
-    fs.copyFileSync(path.join(root, file), path.join(publicDir, file));
+const subDirs = ['', 'src', 'assets', 'src/assets', 'public', 'fonts', 'images'];
+for (const sub of subDirs) {
+  const targetDir = path.join(root, 'public', sub);
+  fs.mkdirSync(targetDir, { recursive: true });
+  for (const media of mediaFiles) {
+    fs.copyFileSync(path.join(root, media), path.join(targetDir, media));
   }
 }
 
@@ -26,15 +39,25 @@ export default defineConfig({
     {
       name: 'flat-resolver',
       resolveId(source) {
-        if (source.startsWith('.') || source.startsWith('/src/') || source.startsWith('@/')) {
-          const clean = source.split('?')[0];
-          const base = path.basename(clean);
-          for (const ext of ['', '.tsx', '.ts', '.jsx', '.js', '.css', '.json']) {
-            const p = path.join(root, base + ext);
-            if (fs.existsSync(p) && fs.statSync(p).isFile()) return p;
-          }
+        if (source.includes('node_modules')) return null;
+        const clean = source.split('?')[0];
+        const base = path.basename(clean);
+        for (const ext of ['', '.tsx', '.ts', '.jsx', '.js', '.css', '.json']) {
+          const p = path.join(root, base + ext);
+          if (fs.existsSync(p) && fs.statSync(p).isFile()) return p;
         }
         return null;
+      },
+      closeBundle() {
+        const distDir = path.join(root, 'dist');
+        if (!fs.existsSync(distDir)) return;
+        for (const sub of subDirs) {
+          const targetDir = path.join(distDir, sub);
+          fs.mkdirSync(targetDir, { recursive: true });
+          for (const media of mediaFiles) {
+            fs.copyFileSync(path.join(root, media), path.join(targetDir, media));
+          }
+        }
       }
     },
     react(),
