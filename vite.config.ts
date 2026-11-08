@@ -18,14 +18,20 @@ for (const file of allFiles) {
     content = content.replace('/src/main.tsx', '/main.tsx').replace('/src/index.tsx', '/main.tsx').replace('/src/index.css', '/index.css');
     for (const media of mediaFiles) {
       const escaped = media.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`(['"(])(?:[^'"()]*?\\/)?${escaped}(['")])`, 'g');
-      content = content.replace(regex, `$1/${media}$2`);
+      const regex = new RegExp(`(?:\\.?\\.?\\/|\\/)(?:[a-zA-Z0-9_-]+\\/)+${escaped}`, 'g');
+      content = content.replace(regex, `/${media}`);
     }
     fs.writeFileSync(filePath, content);
   }
 }
 
-const subDirs = ['', 'src', 'assets', 'src/assets', 'public', 'fonts', 'images'];
+if (fs.existsSync(path.join(root, 'index.css'))) {
+  let css = fs.readFileSync(path.join(root, 'index.css'), 'utf8');
+  css += '\n[style*="border-image"], [style*="borderImage"] { border-color: transparent !important; }\n';
+  fs.writeFileSync(path.join(root, 'index.css'), css);
+}
+
+const subDirs = ['', 'src', 'assets', 'src/assets', 'public', 'fonts', 'images', 'components', 'src/components'];
 for (const sub of subDirs) {
   const targetDir = path.join(root, 'public', sub);
   fs.mkdirSync(targetDir, { recursive: true });
