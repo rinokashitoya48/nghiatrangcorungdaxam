@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "Tribute": {
+      "title": "Tribute",
+      "description": "Tracks total unique flower offerings left by visitors at a character's tombstone.",
+      "type": "object",
+      "properties": {
+        "characterId": {
+          "type": "string",
+          "description": "The unique identifier of the character tombstone.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "flowerCount": {
+          "type": "integer",
+          "description": "Total number of unique visitors who offered a white chrysanthemum."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the most recent flower offering."
+        }
+      },
+      "required": ["characterId", "flowerCount", "updatedAt"]
+    },
+    "TributeVisitor": {
+      "title": "TributeVisitor",
+      "description": "Records a single unique visitor's flower offering for a specific character tombstone to prevent duplicate likes and persist unlock status.",
+      "type": "object",
+      "properties": {
+        "characterId": {
+          "type": "string",
+          "description": "The unique identifier of the character tombstone.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "visitorId": {
+          "type": "string",
+          "description": "Deterministic anonymous fingerprint ID (IP + device hash) of the visitor.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the visitor offered the flower."
+        }
+      },
+      "required": ["characterId", "visitorId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/tributes/{characterId}": {
+      "schema": {
+        "$ref": "#/entities/Tribute"
+      },
+      "description": "Stores permanent unique flower offering counts per character tombstone."
+    },
+    "/tributes/{characterId}/visitors/{visitorId}": {
+      "schema": {
+        "$ref": "#/entities/TributeVisitor"
+      },
+      "description": "Stores one document per unique visitor per character tombstone so each visitor can only offer one flower and permanently unlocks the epitaph."
+    }
+  }
+}

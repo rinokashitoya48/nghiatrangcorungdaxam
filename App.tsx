@@ -16,13 +16,122 @@ import { AuthenticPhotoFrame } from './components/AuthenticPhotoFrame';
 import { AddCharacterModal } from './components/AddCharacterModal';
 import { CharacterDetailModal } from './components/CharacterDetailModal';
 import { RealmIntroSection } from './components/RealmIntroSection';
+import { GatekeeperIntroView } from './components/GatekeeperIntroView';
 import { AudioProvider } from './context/AudioContext';
 import { BackgroundMusicWidget } from './components/BackgroundMusicWidget';
+import {
+  subscribeToCharacterTributes,
+  syncVisitorOfferedStatus,
+  recordUniqueFlowerOffering,
+} from './firebase';
 
 const STORAGE_KEY_CHARS = 'runga_da_xam_char_profiles_v19';
+const STORAGE_KEY_FLOWERS = 'runga_da_xam_flower_tributes_v2';
+const STORAGE_KEY_OFFERED = 'runga_da_xam_offered_map_v2';
+
+function WhiteChrysanthemumIcon({
+  className = 'h-3.5 w-3.5 sm:h-4 sm:w-4',
+  filled = false,
+}: {
+  className?: string;
+  filled?: boolean;
+}) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
+      {/* 8 delicate chrysanthemum petals */}
+      <path
+        d="M12 2.2C13.1 5.2 13.4 7.5 12 9.5C10.6 7.5 10.9 5.2 12 2.2Z"
+        fill={filled ? 'currentColor' : 'none'}
+        fillOpacity={filled ? '0.28' : '0'}
+        stroke="currentColor"
+        strokeWidth="1.35"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 21.8C13.1 18.8 13.4 16.5 12 14.5C10.6 16.5 10.9 18.8 12 21.8Z"
+        fill={filled ? 'currentColor' : 'none'}
+        fillOpacity={filled ? '0.28' : '0'}
+        stroke="currentColor"
+        strokeWidth="1.35"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M2.2 12C5.2 10.9 7.5 10.6 9.5 12C7.5 13.4 5.2 13.1 2.2 12Z"
+        fill={filled ? 'currentColor' : 'none'}
+        fillOpacity={filled ? '0.28' : '0'}
+        stroke="currentColor"
+        strokeWidth="1.35"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M21.8 12C18.8 10.9 16.5 10.6 14.5 12C16.5 13.4 18.8 13.1 21.8 12Z"
+        fill={filled ? 'currentColor' : 'none'}
+        fillOpacity={filled ? '0.28' : '0'}
+        stroke="currentColor"
+        strokeWidth="1.35"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5.07 5.07C7.97 6.41 9.81 7.82 10.23 10.23C7.82 9.81 6.41 7.97 5.07 5.07Z"
+        fill={filled ? 'currentColor' : 'none'}
+        fillOpacity={filled ? '0.22' : '0'}
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M18.93 18.93C16.03 17.59 14.19 16.18 13.77 13.77C16.18 14.19 17.59 16.03 18.93 18.93Z"
+        fill={filled ? 'currentColor' : 'none'}
+        fillOpacity={filled ? '0.22' : '0'}
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M18.93 5.07C17.59 7.97 16.18 9.81 13.77 10.23C14.19 7.82 16.03 6.41 18.93 5.07Z"
+        fill={filled ? 'currentColor' : 'none'}
+        fillOpacity={filled ? '0.22' : '0'}
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5.07 18.93C6.41 16.03 7.82 14.19 10.23 13.77C9.81 16.18 7.97 17.59 5.07 18.93Z"
+        fill={filled ? 'currentColor' : 'none'}
+        fillOpacity={filled ? '0.22' : '0'}
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle
+        cx="12"
+        cy="12"
+        r="2.2"
+        fill={filled ? 'currentColor' : '#070709'}
+        stroke="currentColor"
+        strokeWidth="1.35"
+      />
+    </svg>
+  );
+}
 
 function AppContent() {
-  const [activeView, setActiveView] = useState<'entrance' | RealmId>('entrance');
+  const [activeView, setActiveView] = useState<
+    'entrance' | 'gatekeeper' | RealmId
+  >('entrance');
 
   const [characters, setCharacters] = useState<CharacterProfile[]>(() => {
     try {
@@ -64,6 +173,45 @@ function AppContent() {
     return INITIAL_CHARACTERS;
   });
 
+  const [flowerCounts, setFlowerCounts] = useState<Record<string, number>>(
+    () => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_FLOWERS);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object') {
+            return parsed;
+          }
+        }
+      } catch {
+        // ignore
+      }
+      return {};
+    }
+  );
+
+  const [offeredMap, setOfferedMap] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_OFFERED);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          return parsed;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return {};
+  });
+
+  const [justOfferedCharId, setJustOfferedCharId] = useState<string | null>(
+    null
+  );
+  const [lockedNoticeCharId, setLockedNoticeCharId] = useState<string | null>(
+    null
+  );
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [selectedCharacter, setSelectedCharacter] =
@@ -76,6 +224,99 @@ function AppContent() {
       // ignore
     }
   }, [characters]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_FLOWERS, JSON.stringify(flowerCounts));
+    } catch {
+      // ignore
+    }
+  }, [flowerCounts]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_OFFERED, JSON.stringify(offeredMap));
+    } catch {
+      // ignore
+    }
+  }, [offeredMap]);
+
+  useEffect(() => {
+    const charIds = characters.map((c) => c.id);
+    const unsubscribe = subscribeToCharacterTributes(
+      charIds,
+      (charId, remoteCount) => {
+        setFlowerCounts((prev) => ({
+          ...prev,
+          [charId]: remoteCount,
+        }));
+      }
+    );
+
+    syncVisitorOfferedStatus(charIds, (confirmedCharId) => {
+      setOfferedMap((prev) => {
+        if (prev[confirmedCharId]) return prev;
+        return { ...prev, [confirmedCharId]: true };
+      });
+    });
+
+    return () => unsubscribe();
+  }, [characters]);
+
+  const handleOfferFlower = (e: React.MouseEvent, charId: string) => {
+    e.stopPropagation();
+
+    setJustOfferedCharId(charId);
+    window.setTimeout(() => {
+      setJustOfferedCharId((prev) => (prev === charId ? null : prev));
+    }, 650);
+
+    // Clear locked notice if active on this character
+    if (lockedNoticeCharId === charId) {
+      setLockedNoticeCharId(null);
+    }
+
+    // If this visitor already placed a flower on this character, do not add fake likes
+    if (offeredMap[charId]) {
+      return;
+    }
+
+    setOfferedMap((prev) => ({
+      ...prev,
+      [charId]: true,
+    }));
+
+    setFlowerCounts((prev) => ({
+      ...prev,
+      [charId]: (prev[charId] || 0) + 1,
+    }));
+
+    recordUniqueFlowerOffering(charId)
+      .then(({ alreadyOffered }) => {
+        if (alreadyOffered) {
+          // Visitor already existed in Firestore (e.g. returning via IP fingerprint after clearing cache);
+          // undo the optimistic +1 so count stays strictly 1 per unique visitor.
+          setFlowerCounts((prev) => ({
+            ...prev,
+            [charId]: Math.max(1, (prev[charId] || 1) - 1),
+          }));
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not persist flower offering to Firestore:', err);
+      });
+  };
+
+  const handleTryOpenCharacter = (char: CharacterProfile) => {
+    if (!offeredMap[char.id]) {
+      setLockedNoticeCharId(char.id);
+      window.setTimeout(() => {
+        setLockedNoticeCharId((prev) => (prev === char.id ? null : prev));
+      }, 3600);
+      return;
+    }
+    setSelectedCharacter(char);
+  };
 
   const handleAddCharacter = (newChar: CharacterProfile) => {
     setCharacters((prev) => [newChar, ...prev]);
@@ -174,11 +415,14 @@ function AppContent() {
             chôn vùi những cái tên chưa từng được gọi thành lời.”
           </p>
 
-          {/* 6. Two Original Realm Buttons ("Rừng Cổ Tích" & "Rừng Sương Đen") */}
+          {/* 6. Single Entrance Button ("BƯỚC VÀO NGHĨA TRANG") */}
           <div className="entrance-buttons-wrap flex flex-wrap items-center justify-center">
             <button
               type="button"
-              onClick={() => enterRealm('rung-co-tich')}
+              onClick={() => {
+                setActiveView('gatekeeper');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className="entrance-button group relative cursor-pointer whitespace-nowrap border border-[#c8c8ce]/55 bg-[#050507]/85 transition-all duration-300 hover:border-[#ececef] hover:bg-[#111115]"
             >
               <span
@@ -189,27 +433,7 @@ function AppContent() {
                 <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
                   ✦
                 </span>
-                <span>Rừng Cổ Tích</span>
-                <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
-                  ✦
-                </span>
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => enterRealm('rung-ben-phai')}
-              className="entrance-button group relative cursor-pointer whitespace-nowrap border border-[#c8c8ce]/55 bg-[#050507]/85 transition-all duration-300 hover:border-[#ececef] hover:bg-[#111115]"
-            >
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60 md:inset-[3.5px]"
-              />
-              <span className="entrance-button-text relative z-10 flex items-center justify-center font-serif-title font-normal text-[#e4e4ea] uppercase group-hover:text-white">
-                <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
-                  ✦
-                </span>
-                <span>Rừng Điển Tích</span>
+                <span>Bước Vào Nghĩa Trang</span>
                 <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
                   ✦
                 </span>
@@ -218,6 +442,19 @@ function AppContent() {
           </div>
         </main>
       </div>
+    );
+  }
+
+  // ================= VIEW 2: TRANG GIỚI THIỆU NGƯỜI GÁC CỔNG =================
+  if (activeView === 'gatekeeper') {
+    return (
+      <GatekeeperIntroView
+        onBackToEntrance={() => {
+          setActiveView('entrance');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onEnterRealm={(targetRealm) => enterRealm(targetRealm)}
+      />
     );
   }
 
@@ -360,294 +597,435 @@ function hasVietnameseDiacritics(str: string): boolean {
 
   return (
     <div className="relative min-h-screen bg-[#030304] text-[#e5e5e5]">
-      {/* Analog Film Grain & Chalk Dust Overlay Inside Realm Views */}
+      {/* Identical Analog Film Grain & Chalk Dust Overlay as Outer Entrance Screen */}
       <GothicFilmGrainOverlay />
 
-      {/* Continuous Snowfall Only (mistEnabled={false} so background stays pure deep Gothic black) */}
+      {/* Original Continuous Snowfall Preserved 100% */}
       <SnowAndMistCanvas
         snowIntensity="moderate"
         mistEnabled={false}
         spectralMotionEnabled={false}
       />
 
-      {/* PHẦN MỞ ĐẦU TRƯỚC KHI TỚI DANH SÁCH CHAR (ĐÚNG NHƯ ẢNH CANVA CỦA USER) */}
-      <div className="relative z-10">
-        <RealmIntroSection
-          realm={activeView}
-          onBackToGate={() => setActiveView('entrance')}
-          onSwitchRealm={(target) => enterRealm(target)}
-        />
-      </div>
-
-      {/* PHẦN VĂN BIA LINH HỒN PHÍA DƯỚI — ĐỒNG NHẤT 100% VỚI PHONG CÁCH CANVA TRÊN */}
-      <main className="relative z-10 mx-auto max-w-[560px] px-4 pt-6 pb-24 sm:w-[92%] sm:max-w-[880px] sm:px-6 sm:pt-12 sm:pb-32">
-        {/* Tiêu đề & Thanh công cụ Văn Bia Nghĩa Trang đồng bộ style Canva */}
-        <div className="mb-8 flex flex-col items-center text-center sm:mb-12">
-          <div className="mb-3 flex items-center justify-center sm:mb-4">
-            <svg
-              viewBox="0 0 32 32"
-              fill="none"
-              className="h-3.5 w-3.5 text-[#dcdcdc] sm:h-6 sm:w-6"
+      {/* KHUNG VÒM GOTHIC CỔ ĐIỂN ĐỒNG BỘ MÀU BẠC PHẤN (#E2E2E6) & HIỆU ỨNG NHIỄU HẠT — DÙNG CONTAINER QUERY (cqw) ĐỒNG BỘ TỶ LỆ 1:1 MOBILE & WEB/DEVICE */}
+      <div className="relative z-10 mx-auto my-1 min-h-[calc(100vh-8px)] w-[calc(100%-4px)] max-w-[940px] overflow-hidden [container-type:inline-size] sm:my-3 sm:min-h-[calc(100vh-24px)]">
+        {/* Cấu trúc Vòm Gothic 3 nhịp — Cột xoắn thả lửng — Thân cột mảnh — Chân đế hoa văn nối liền mạch */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-10 flex flex-col opacity-92"
+        >
+          {/* 1. Toàn bộ vòm Gothic & cột xoắn thả lửng nguyên bản + 2 cọng ăng ten treo chính xác ngay đầu mũi vòm trong */}
+          <div className="relative w-full shrink-0">
+            <img
+              src="/assets/aistudio/gothic_cathedral_arch_top.png?v=12"
+              alt=""
+              referrerPolicy="no-referrer"
+              className="block h-auto w-full select-none"
+            />
+            {/* Cọng ăng ten trái treo đúng ngay mũi vòm trong bên trái (x=29.32%, y=32.1%) */}
+            <img
+              src="/assets/aistudio/gothic_hanging_antenna.png?v=2"
+              alt=""
               aria-hidden="true"
-            >
-              <path
-                d="M16 1 C16.35 12.6 19.4 15.65 31 16 C19.4 16.35 16.35 19.4 16 31 C15.65 19.4 12.6 16.35 1 16 C12.6 15.65 15.65 12.6 16 1 Z"
-                fill="currentColor"
-              />
-            </svg>
+              referrerPolicy="no-referrer"
+              className="gothic-chalk-print pointer-events-none absolute top-[32.1%] left-[29.32%] h-auto w-[5.5%] -translate-x-1/2 object-contain opacity-92 select-none"
+            />
+            {/* Cọng ăng ten phải treo đúng ngay mũi vòm trong bên phải (x=70.66%, y=31.9%) */}
+            <img
+              src="/assets/aistudio/gothic_hanging_antenna.png?v=2"
+              alt=""
+              aria-hidden="true"
+              referrerPolicy="no-referrer"
+              className="gothic-chalk-print pointer-events-none absolute top-[31.9%] left-[70.66%] h-auto w-[5.5%] -translate-x-1/2 -scale-x-100 object-contain opacity-92 select-none"
+            />
           </div>
 
-          <h2 className="font-hp001 text-[23px] leading-[1.45] font-normal text-[#ededed] sm:text-[48px]">
-            biên niên sử cổ
-          </h2>
-          <p className="font-sans-clean mt-2 text-[10px] tracking-[0.06em] text-[#a8a8a8] uppercase sm:mt-3.5 sm:text-[18px] sm:tracking-[0.08em]">
-            {searchQuery.trim()
-              ? `${activeRealmTitle} · Tìm thấy ${realmCharacters.length} linh hồn khớp với “${searchQuery.trim()}”`
-              : `${activeRealmTitle} · ${realmCharacters.length} linh hồn an nghỉ`}
-          </p>
+          {/* 2. Thân cột mảnh hai bên nối liền mạch xuống chân khung */}
+          <div
+            className="w-full flex-1"
+            style={{
+              backgroundImage:
+                "url('/assets/aistudio/gothic_cathedral_pillars_row.png?v=12')",
+              backgroundSize: '100% auto',
+              backgroundPosition: 'top center',
+              backgroundRepeat: 'repeat-y',
+            }}
+          />
 
-          <div className="mt-5 flex w-full flex-col items-stretch justify-between gap-2.5 sm:mt-8 sm:flex-row sm:items-center sm:gap-4">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute top-1/2 left-3.5 h-3.5 w-3.5 -translate-y-1/2 text-[#8c8c8c] sm:left-5 sm:h-5 sm:w-5" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={`Tìm kiếm văn bia trong ${activeRealmTitle}...`}
-                className="font-sans-clean w-full rounded-full border border-white/15 bg-[#08080a] py-2 pr-9 pl-9 text-[11px] text-[#e5e5e5] placeholder:text-[#787878] focus:border-white/40 focus:outline-none sm:py-4 sm:pr-12 sm:pl-13 sm:text-[18px]"
+          {/* 3. Chân đế hoa văn cổ điển ở đáy trang */}
+          <img
+            src="/assets/aistudio/gothic_cathedral_bottom.png?v=12"
+            alt=""
+            referrerPolicy="no-referrer"
+            className="block h-auto w-full shrink-0 select-none"
+          />
+        </div>
+
+        {/* NỬA TRÊN: BƯỚM ĐÊM, KHUNG BAROQUE + FONT LF PUSHKIN, HOA VĂN NGHĨA TRANG, CHÌA KHÓA CỔ & ĐIỀU HƯỚNG */}
+        <div className="relative z-20">
+          <RealmIntroSection
+            realm={activeView}
+            onBackToGate={() => {
+              setActiveView('gatekeeper');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSwitchRealm={(target) => enterRealm(target)}
+          />
+        </div>
+
+        {/* NỬA DƯỚI: BIÊN NIÊN SỬ & VĂN BIA LINH HỒN — NẰM GỌN TRONG LÒNG CỘT VÒM (1:1 cqw) */}
+        <main className="relative z-20 mx-auto px-[9.5%] pt-[3.6cqw] pb-[26cqw]">
+          {/* Phần hoa văn đèn chùm gương bầu dục đối xứng đặt trên chữ Biên niên sử */}
+          <div className="mb-[5.2cqw] flex flex-col items-center text-center">
+            <div className="mb-[0.8cqw] flex items-center justify-center">
+              <img
+                src="/assets/aistudio/gothic_chandelier_crest.png?v=3"
+                alt=""
+                aria-hidden="true"
+                referrerPolicy="no-referrer"
+                className="gothic-chalk-print h-auto w-[34cqw] object-contain opacity-95"
               />
-              {searchQuery && (
+            </div>
+
+            <h2 className="font-lordish gothic-lordish-chalk text-[10.4cqw] leading-[0.98] font-normal tracking-[0.01em] whitespace-nowrap">
+              Biên niên sử
+            </h2>
+            <p className="font-serif-title gothic-text-chalk mt-[1.2cqw] text-[2.85cqw] leading-[1.35] tracking-[0.14em] text-[#b4b4be] uppercase">
+              {searchQuery.trim()
+                ? `${activeRealmTitle} · Tìm thấy ${realmCharacters.length} linh hồn khớp với “${searchQuery.trim()}”`
+                : `${activeRealmTitle} · ${realmCharacters.length} linh hồn an nghỉ`}
+            </p>
+
+            {/* Thanh tìm kiếm & Khung Yên Giấc Ngàn Thu chuẩn viền kép Gothic */}
+            <div className="mt-[5.2cqw] flex w-full flex-col items-stretch justify-between gap-[2.5cqw] sm:flex-row sm:items-center sm:gap-[2.2cqw]">
+              <div className="relative flex-1 border border-[#c8c8ce]/40 bg-[#050507]/90 transition-colors focus-within:border-[#e4e4ec]/80">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/20 sm:inset-[3px]"
+                />
+                <Search className="pointer-events-none absolute top-1/2 left-[3.2cqw] z-10 h-[3.6cqw] w-[3.6cqw] -translate-y-1/2 text-[#9898a2] sm:left-[2cqw] sm:h-[2.2cqw] sm:w-[2.2cqw]" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={`Tìm kiếm văn bia trong ${activeRealmTitle}...`}
+                  className="font-serif-title relative z-10 w-full bg-transparent py-[2.6cqw] pr-[8cqw] pl-[9cqw] text-[3.1cqw] tracking-[0.03em] text-[#dcdce4] placeholder:italic placeholder:text-[#84848e] focus:outline-none sm:py-[2cqw] sm:pr-[4.5cqw] sm:pl-[5.6cqw] sm:text-[1.95cqw]"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute top-1/2 right-[3cqw] z-20 -translate-y-1/2 cursor-pointer p-1 text-[3cqw] text-[#9898a2] hover:text-white sm:right-[2cqw] sm:text-[2.1cqw]"
+                    title="Xóa tìm kiếm"
+                    aria-label="Xóa tìm kiếm"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* Khung trang trí nghĩa trang đồng bộ viền kép Gothic */}
+              <div className="font-serif-title gothic-chalk-print relative inline-flex shrink-0 items-center justify-center gap-[1.8cqw] border border-[#c8c8ce]/40 bg-[#050507]/90 px-[4cqw] py-[2.6cqw] text-[2.85cqw] tracking-[0.12em] text-[#dcdce4] uppercase select-none sm:gap-[1.3cqw] sm:px-[2.8cqw] sm:py-[2cqw] sm:text-[1.95cqw]">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/20 sm:inset-[3px]"
+                />
+                <span className="text-[0.75em] text-[#9e9ea8]">
+                  ✦
+                </span>
+                <span>Yên Giấc Ngàn Thu</span>
+                <span className="text-[0.75em] text-[#9e9ea8]">
+                  ✦
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Danh sách Bia Mộ Nhân Vật đóng khung Gothic Reliquary */}
+          <section className="space-y-[6cqw]">
+            {realmCharacters.length === 0 ? (
+              <div className="relative border border-[#c8c8ce]/35 bg-[#050507]/92 p-8 text-center sm:p-12">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-[3px] border border-[#a1a1aa]/20 sm:inset-[4px]"
+                />
+                <div className="relative z-10 mx-auto mb-3 flex h-8 w-8 items-center justify-center border border-[#c8c8ce]/35 text-[#b8b8c2]">
+                  ✦
+                </div>
+                <h3 className="font-serif-title relative z-10 text-lg tracking-[0.08em] text-[#e6e6ec] uppercase sm:text-2xl">
+                  Không tìm thấy văn bia phù hợp
+                </h3>
+                <p className="font-sans-clean relative z-10 mt-2 text-[11px] text-[#9a9a9a] sm:text-base">
+                  Không có linh hồn nào khớp với từ khóa “{searchQuery}” trong{' '}
+                  {activeRealmTitle}.
+                </p>
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute top-1/2 right-3 -translate-y-1/2 p-1 text-xs text-[#888888] hover:text-white sm:right-4 sm:text-base cursor-pointer"
-                  title="Xóa tìm kiếm"
-                  aria-label="Xóa tìm kiếm"
+                  className="font-serif-title relative z-10 mt-4 inline-flex cursor-pointer items-center gap-1.5 border border-[#c8c8ce]/45 bg-[#0c0c10] px-4 py-1.5 text-[11.5px] tracking-[0.08em] text-[#e5e5e5] uppercase hover:border-white hover:bg-[#15151c] sm:text-sm"
                 >
-                  ✕
+                  <span>✕</span>
+                  <span>Xóa bộ lọc tìm kiếm</span>
                 </button>
-              )}
-            </div>
-
-            {/* Khung trang trí nghĩa trang (thay thế nút thêm nhân vật) */}
-            <div className="font-sans-clean inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-white/20 bg-[#08080a] px-4 py-2 text-[11px] tracking-[0.05em] text-[#dcdcdc] select-none shadow-[0_2px_12px_rgba(0,0,0,0.4)] sm:gap-2.5 sm:px-7 sm:py-4 sm:text-[18px]">
-              <span className="text-[9px] text-[#888888] sm:text-[13px]">✦</span>
-              <span>Yên Giấc Ngàn Thu</span>
-              <span className="text-[9px] text-[#888888] sm:text-[13px]">✦</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Character Cards List Unified with Deep Pitch-Black Layout */}
-        <section className="space-y-6 sm:space-y-10">
-          {realmCharacters.length === 0 ? (
-            <div className="border border-white/10 bg-[#070709] p-8 text-center sm:p-12">
-              <div className="mx-auto mb-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-[#a8a8a8]">
-                ✦
               </div>
-              <h3 className="font-serif-title text-lg tracking-[0.08em] text-[#e6e6ec] uppercase sm:text-2xl">
-                Không tìm thấy văn bia phù hợp
-              </h3>
-              <p className="font-sans-clean mt-2 text-[11px] text-[#9a9a9a] sm:text-base">
-                Không có linh hồn nào khớp với từ khóa “{searchQuery}” trong{' '}
-                {activeRealmTitle}.
-              </p>
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="font-sans-clean mt-4 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-white/25 bg-[#111115] px-4 py-1.5 text-[11px] text-[#e5e5e5] hover:border-white/50 hover:bg-[#18181f] sm:text-sm"
-              >
-                <span>✕</span>
-                <span>Xóa bộ lọc tìm kiếm</span>
-              </button>
-            </div>
-          ) : (
-            realmCharacters.map((char) => {
-              const canonicalIndex =
-                allRealmCharacters.findIndex((c) => c.id === char.id) + 1;
-              const formattedNo =
-                canonicalIndex < 10
-                  ? `No. 0${canonicalIndex}`
-                  : `No. ${canonicalIndex}`;
+            ) : (
+              realmCharacters.map((char) => {
+                const canonicalIndex =
+                  allRealmCharacters.findIndex((c) => c.id === char.id) + 1;
+                const formattedNo =
+                  canonicalIndex < 10
+                    ? `No. 0${canonicalIndex}`
+                    : `No. ${canonicalIndex}`;
 
-              return (
-                <article
-                  key={char.id}
-                  onClick={() => setSelectedCharacter(char)}
-                  className="group relative cursor-pointer border border-white/10 bg-[#070709] p-4 transition-all duration-300 hover:border-white/25 hover:bg-[#0c0c0f] sm:border-white/15 sm:p-9"
-                >
-                  <div className="font-sans-clean flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3 text-[10px] tracking-[0.06em] text-[#9e9e9e] uppercase sm:border-white/15 sm:pb-4.5 sm:text-[16.5px] sm:tracking-[0.07em]">
-                    <div className="flex items-center gap-2 sm:gap-2.5">
-                      <span className="font-tabular text-[#dcdcdc]">
-                        {formattedNo}
-                      </span>
-                      <span
-                        aria-hidden="true"
-                        className="text-[6px] text-zinc-500 sm:text-[8px]"
-                      >
-                        ●
-                      </span>
-                      <span className="text-[#cccccc]">
-                        {char.role
-                          ? char.role.charAt(0).toUpperCase() +
-                            char.role.slice(1)
-                          : ''}
-                      </span>
-                    </div>
-                    <span>{activeRealmTitle}</span>
-                  </div>
+                const hasOffered = Boolean(offeredMap[char.id]);
+                const displayCount = Math.max(1, flowerCounts[char.id] || 1);
+                const isLockedWarning = lockedNoticeCharId === char.id;
 
-                  <div className="mt-4 grid grid-cols-1 gap-5 sm:mt-7 sm:grid-cols-12 sm:gap-9">
-                    {/* Portrait */}
-                    <div className="sm:col-span-5">
-                      <div className="aspect-square w-full overflow-hidden bg-[#101010]">
-                        <AuthenticPhotoFrame
-                          image={char.avatar}
-                          alt={char.name}
-                          spectralMotion={false}
-                          preserveColor={true}
-                          className="h-full w-full"
-                        />
-                      </div>
+                return (
+                  <article
+                    key={char.id}
+                    onClick={() => handleTryOpenCharacter(char)}
+                    className="group relative cursor-pointer border border-[#c8c8ce]/35 bg-[#050507]/92 p-[4.2cqw] shadow-[0_12px_34px_rgba(0,0,0,0.85)] transition-all duration-300 hover:border-[#e4e4ec]/70 hover:bg-[#09090d] sm:p-[4.5cqw]"
+                  >
+                    {/* Viền khắc kép Gothic bên trong mỗi thẻ văn bia */}
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-[3px] border border-[#a1a1aa]/20 transition-colors duration-300 group-hover:border-[#d4d4d8]/40 sm:inset-[4px]"
+                    />
 
-                      {char.gallery.length > 0 && (
-                        <div className="mt-2 grid grid-cols-3 gap-1.5 sm:mt-3 sm:gap-2.5">
-                          {char.gallery.slice(0, 3).map((gImg, gIdx) => (
-                            <div
-                              key={gIdx}
-                              className="aspect-square overflow-hidden bg-[#101010]"
-                            >
-                              <AuthenticPhotoFrame
-                                image={gImg}
-                                alt={`${char.name} ${gIdx + 1}`}
-                                spectralMotion={false}
-                                preserveColor={true}
-                                className="h-full w-full opacity-80 transition-opacity group-hover:opacity-100"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Lore & Bio */}
-                    <div className="flex flex-col justify-between text-left sm:col-span-7">
-                      <div>
-                        <h3 className="gothic-chalk-print font-serif-title text-xl leading-tight font-normal tracking-[0.11em] text-[#e6e6ec] uppercase sm:text-[40px] sm:tracking-[0.13em]">
-                          {char.name}
-                        </h3>
-                        <p className="font-serif-title mt-1.5 text-[13px] font-light italic text-[#d0d0d6] sm:mt-2.5 sm:text-[23px]">
-                          “{char.alias}”
-                        </p>
-
-                        <div className="font-sans-clean mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1 border-y border-white/10 py-2 text-[10.5px] text-[#cccccc] sm:mt-5 sm:gap-x-3.5 sm:border-white/15 sm:py-3.5 sm:text-[17.5px]">
-                          <span>{char.age}</span>
-                          <span
-                            aria-hidden="true"
-                            className="text-[6px] text-zinc-500 sm:text-[8px]"
-                          >
-                            ●
-                          </span>
-                          <span>{char.height}</span>
-                        </div>
-
-                        <blockquote className="font-sans-clean mt-3.5 text-[11.5px] leading-[1.65] font-light italic text-[#dcdcdc] sm:mt-5 sm:text-[19.5px] sm:leading-[1.72]">
-                          {char.quote}
-                        </blockquote>
-                      </div>
-
-                      <div className="font-sans-clean mt-4 flex items-center justify-between border-t border-white/10 pt-3 text-[10.5px] sm:mt-7 sm:border-white/15 sm:pt-4.5 sm:text-[17px]">
-                        <span className="text-[#999999]">
-                          {char.trinkets.length > 0
-                            ? `Di vật: ${char.trinkets.length} món`
-                            : char.role
+                    <div className="font-serif-title relative z-10 flex flex-wrap items-center justify-between gap-2 border-b border-white/12 pb-[2.5cqw] text-[2.7cqw] tracking-[0.11em] text-[#a8a8b2] uppercase sm:border-white/15 sm:pb-[2.2cqw] sm:text-[2.15cqw]">
+                      <div className="flex items-center gap-[2cqw] sm:gap-[1.4cqw]">
+                        <span className="font-tabular text-[#e2e2ea]">
+                          {formattedNo}
+                        </span>
+                        <span
+                          aria-hidden="true"
+                          className="text-[0.65em] text-zinc-500"
+                        >
+                          ✦
+                        </span>
+                        <span className="text-[#d0d0d8]">
+                          {char.role
                             ? char.role.charAt(0).toUpperCase() +
                               char.role.slice(1)
                             : ''}
                         </span>
-                        <span className="font-normal tracking-[0.04em] text-[#e5e5e5] uppercase underline-offset-4 group-hover:underline">
-                          Đọc Văn Bia →
-                        </span>
+                      </div>
+                      <span>{activeRealmTitle}</span>
+                    </div>
+
+                    <div className="relative z-10 mt-[4cqw] grid grid-cols-1 gap-[4cqw] sm:mt-[3.5cqw] sm:grid-cols-12 sm:gap-[3.8cqw]">
+                      {/* Portrait */}
+                      <div className="sm:col-span-5">
+                        <div className="relative aspect-square w-full overflow-hidden border border-[#c8c8ce]/30 bg-[#0d0d10] p-1 sm:p-1.5">
+                          <div className="h-full w-full overflow-hidden bg-[#101010]">
+                            <AuthenticPhotoFrame
+                              image={char.avatar}
+                              alt={char.name}
+                              spectralMotion={false}
+                              preserveColor={true}
+                              className="h-full w-full"
+                            />
+                          </div>
+                        </div>
+
+                        {char.gallery.length > 0 && (
+                          <div className="mt-2 grid grid-cols-3 gap-1.5 sm:mt-2.5 sm:gap-2">
+                            {char.gallery.slice(0, 3).map((gImg, gIdx) => (
+                              <div
+                                key={gIdx}
+                                className="aspect-square overflow-hidden border border-white/15 bg-[#101010]"
+                              >
+                                <AuthenticPhotoFrame
+                                  image={gImg}
+                                  alt={`${char.name} ${gIdx + 1}`}
+                                  spectralMotion={false}
+                                  preserveColor={true}
+                                  className="h-full w-full opacity-80 transition-opacity group-hover:opacity-100"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Lore & Bio */}
+                      <div className="flex flex-col justify-between text-left sm:col-span-7">
+                        <div>
+                          <h3 className="gothic-chalk-print font-serif-title text-[5.2cqw] leading-tight font-normal tracking-[0.11em] text-[#e6e6ec] uppercase sm:text-[4.4cqw] sm:tracking-[0.13em]">
+                            {char.name}
+                          </h3>
+                          <p className="font-serif-title mt-[1cqw] text-[3.4cqw] font-light italic text-[#d0d0d6] sm:mt-[1cqw] sm:text-[2.8cqw]">
+                            “{char.alias}”
+                          </p>
+
+                          <div className="font-sans-clean mt-[3cqw] flex flex-wrap items-center gap-x-[2.5cqw] gap-y-1 border-y border-white/10 py-[2cqw] text-[2.6cqw] text-[#cccccc] sm:mt-[2.4cqw] sm:gap-x-[1.8cqw] sm:border-white/15 sm:py-[1.6cqw] sm:text-[2.15cqw]">
+                            <span>{char.age}</span>
+                            <span
+                              aria-hidden="true"
+                              className="text-[0.7em] text-zinc-500"
+                            >
+                              ✦
+                            </span>
+                            <span>{char.height}</span>
+                          </div>
+
+                          <blockquote
+                            className="font-sans-clean mt-[3cqw] text-justify text-[2.9cqw] leading-[1.65] font-light italic text-[#dcdce2] sm:mt-[2.4cqw] sm:text-[2.3cqw] sm:leading-[1.72]"
+                            style={{
+                              textAlign: 'justify',
+                              textAlignLast: 'left',
+                            }}
+                          >
+                            {char.quote}
+                          </blockquote>
+                        </div>
+
+                        <div className="mt-[4cqw] border-t border-white/10 pt-[3cqw] sm:mt-[3.2cqw] sm:border-white/15 sm:pt-[2.2cqw]">
+                          <div className="font-sans-clean flex items-center justify-between gap-2 text-[2.75cqw] sm:text-[2.15cqw]">
+                            <button
+                              type="button"
+                              onClick={(e) => handleOfferFlower(e, char.id)}
+                              title={
+                                hasOffered
+                                  ? 'Bạn đã đặt nhành bạch cúc viếng thăm ngôi mộ này'
+                                  : 'Đặt một nhành bạch cúc viếng thăm để mở khóa văn bia'
+                              }
+                              className={`group/flower relative inline-flex cursor-pointer items-center gap-[1.5cqw] py-0.5 text-left transition-all duration-300 select-none sm:gap-[1cqw] ${
+                                hasOffered
+                                  ? 'text-[#e8e8ee] hover:text-white'
+                                  : isLockedWarning
+                                  ? 'animate-pulse text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.65)]'
+                                  : 'text-[#a6a6b0] hover:text-[#e8e8ee]'
+                              }`}
+                            >
+                              <span
+                                className={`inline-flex items-center justify-center transition-transform duration-500 ${
+                                  justOfferedCharId === char.id
+                                    ? 'scale-125 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.75)]'
+                                    : hasOffered
+                                    ? 'text-[#e2e2ea] group-hover/flower:scale-110 group-hover/flower:text-white'
+                                    : isLockedWarning
+                                    ? 'scale-115 text-white'
+                                    : 'text-[#9e9ea8] group-hover/flower:scale-110 group-hover/flower:text-[#e4e4ec]'
+                                }`}
+                              >
+                                <WhiteChrysanthemumIcon
+                                  className="h-[3.6cqw] w-[3.6cqw] sm:h-[2.4cqw] sm:w-[2.4cqw]"
+                                  filled={hasOffered}
+                                />
+                              </span>
+                              <span className="tracking-[0.03em]">
+                                {hasOffered ? (
+                                  <>
+                                    <span className="font-tabular font-medium text-[#f2f2f7]">
+                                      {displayCount}
+                                    </span>{' '}
+                                    <span>Nhành Bạch Cúc</span>
+                                  </>
+                                ) : (
+                                  <span>Đặt Nhành Bạch Cúc</span>
+                                )}
+                              </span>
+                            </button>
+
+                            <span
+                              className={`shrink-0 font-normal tracking-[0.04em] uppercase underline-offset-4 transition-colors duration-300 ${
+                                hasOffered
+                                  ? 'text-[#e5e5e5] group-hover:underline'
+                                  : 'text-[#73737d]'
+                              }`}
+                            >
+                              Đọc Văn Bia →
+                            </span>
+                          </div>
+
+                          {isLockedWarning && !hasOffered && (
+                            <p className="font-serif-title mt-[2cqw] text-[2.85cqw] italic tracking-[0.04em] text-[#d8d8e2] sm:mt-[1.5cqw] sm:text-[2.05cqw]">
+                              ✦ Xin khách viếng thăm hãy đặt một nhành bạch cúc trước khi đọc văn bia ✦
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </article>
-              );
-            })
-          )}
-        </section>
+                  </article>
+                );
+              })
+            )}
+          </section>
 
-        {/* Ba khung liên kết ở đáy trang trong — Đồng bộ 100% style 2 khung ngoài màn hình chính */}
-        <footer
-          aria-label="Liên kết lối đi"
-          className="mt-10 border-t border-white/10 pt-8 sm:mt-16 sm:border-white/15 sm:pt-12"
-        >
-          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:grid sm:grid-cols-3 sm:gap-4">
-            <a
-              href="https://discord.gg/silvestre"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative inline-flex cursor-pointer items-center justify-center whitespace-nowrap border border-[#c8c8ce]/60 bg-[#050507]/90 px-4 py-2.5 transition-all duration-300 hover:border-[#ececef] hover:bg-[#111115] sm:w-full sm:px-3 sm:py-4"
-            >
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/35 transition-colors duration-300 group-hover:border-[#d4d4d8]/65 sm:inset-[3.5px]"
-              />
-              <span className="relative z-10 flex items-center justify-center gap-1.5 font-serif-title text-[9.5px] font-normal tracking-[0.11em] text-[#e4e4ea] uppercase group-hover:text-white sm:gap-2 sm:text-[13.5px] sm:tracking-[0.09em]">
-                <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
-                  ✦
+          {/* Ba khung liên kết ở đáy trang trong — Đồng bộ 100% style, tỷ lệ cqw & hiệu ứng gothic-chalk-print với khung Bước Vào Nghĩa Trang ở màn hình chính */}
+          <footer
+            aria-label="Liên kết lối đi"
+            className="mt-[10cqw] border-t border-white/10 pt-[8cqw] sm:border-white/15"
+          >
+            <div className="gothic-chalk-print flex flex-wrap items-center justify-center gap-[2.5cqw]">
+              <a
+                href="https://discord.gg/silvestre"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative inline-flex cursor-pointer items-center justify-center whitespace-nowrap border border-[#c8c8ce]/55 bg-[#050507]/85 px-[3.8cqw] py-[2.4cqw] transition-all duration-300 hover:border-[#ececef] hover:bg-[#111115]"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60 sm:inset-[3.5px]"
+                />
+                <span className="relative z-10 flex items-center justify-center gap-[1.4cqw] font-serif-title text-[2.45cqw] font-normal tracking-[0.11em] text-[#e4e4ea] uppercase group-hover:text-white">
+                  <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
+                    ✦
+                  </span>
+                  <span>Lối Vào Nhà Nguyện</span>
+                  <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
+                    ✦
+                  </span>
                 </span>
-                <span>Lối Vào Nhà Nguyện</span>
-                <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
-                  ✦
-                </span>
-              </span>
-            </a>
+              </a>
 
-            <a
-              href="https://www.facebook.com/share/1BtPATbjBP/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative inline-flex cursor-pointer items-center justify-center whitespace-nowrap border border-[#c8c8ce]/60 bg-[#050507]/90 px-4 py-2.5 transition-all duration-300 hover:border-[#ececef] hover:bg-[#111115] sm:w-full sm:px-3 sm:py-4"
-            >
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/35 transition-colors duration-300 group-hover:border-[#d4d4d8]/65 sm:inset-[3.5px]"
-              />
-              <span className="relative z-10 flex items-center justify-center gap-1.5 font-serif-title text-[9.5px] font-normal tracking-[0.11em] text-[#e4e4ea] uppercase group-hover:text-white sm:gap-2 sm:text-[13.5px] sm:tracking-[0.09em]">
-                <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
-                  ✦
+              <a
+                href="https://www.facebook.com/share/1BtPATbjBP/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative inline-flex cursor-pointer items-center justify-center whitespace-nowrap border border-[#c8c8ce]/55 bg-[#050507]/85 px-[3.8cqw] py-[2.4cqw] transition-all duration-300 hover:border-[#ececef] hover:bg-[#111115]"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60 sm:inset-[3.5px]"
+                />
+                <span className="relative z-10 flex items-center justify-center gap-[1.4cqw] font-serif-title text-[2.45cqw] font-normal tracking-[0.11em] text-[#e4e4ea] uppercase group-hover:text-white">
+                  <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
+                    ✦
+                  </span>
+                  <span>Lối Xuống Triền Đông</span>
+                  <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
+                    ✦
+                  </span>
                 </span>
-                <span>Lối Xuống Triền Đông</span>
-                <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
-                  ✦
-                </span>
-              </span>
-            </a>
+              </a>
 
-            <a
-              href="https://www.facebook.com/share/14tECa77VWj/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative inline-flex cursor-pointer items-center justify-center whitespace-nowrap border border-[#c8c8ce]/60 bg-[#050507]/90 px-4 py-2.5 transition-all duration-300 hover:border-[#ececef] hover:bg-[#111115] sm:w-full sm:px-3 sm:py-4"
-            >
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/35 transition-colors duration-300 group-hover:border-[#d4d4d8]/65 sm:inset-[3.5px]"
-              />
-              <span className="relative z-10 flex items-center justify-center gap-1.5 font-serif-title text-[9.5px] font-normal tracking-[0.11em] text-[#e4e4ea] uppercase group-hover:text-white sm:gap-2 sm:text-[13.5px] sm:tracking-[0.09em]">
-                <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
-                  ✦
+              <a
+                href="https://www.facebook.com/share/14tECa77VWj/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative inline-flex cursor-pointer items-center justify-center whitespace-nowrap border border-[#c8c8ce]/55 bg-[#050507]/85 px-[3.8cqw] py-[2.4cqw] transition-all duration-300 hover:border-[#ececef] hover:bg-[#111115]"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60 sm:inset-[3.5px]"
+                />
+                <span className="relative z-10 flex items-center justify-center gap-[1.4cqw] font-serif-title text-[2.45cqw] font-normal tracking-[0.11em] text-[#e4e4ea] uppercase group-hover:text-white">
+                  <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
+                    ✦
+                  </span>
+                  <span>Lối Lên Bóng Nàng</span>
+                  <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
+                    ✦
+                  </span>
                 </span>
-                <span>Lối Lên Bóng Nàng</span>
-                <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
-                  ✦
-                </span>
-              </span>
-            </a>
-          </div>
-        </footer>
-      </main>
+              </a>
+            </div>
+          </footer>
+        </main>
+      </div>
 
       {/* Modals */}
       <AddCharacterModal

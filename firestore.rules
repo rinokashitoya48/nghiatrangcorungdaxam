@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: tributes
+    // Document ID: {characterId}
+    // Fields:
+    //   - characterId: string (required, immutable, matches document ID)
+    //   - flowerCount: int (required, >= 1, increments by 1 per unique visitor)
+    //   - updatedAt: timestamp (required, server timestamp)
+    //
+    // Subcollection: tributes/{characterId}/visitors
+    // Document ID: {visitorId}
+    // Fields:
+    //   - characterId: string (required, immutable, matches parent document ID)
+    //   - visitorId: string (required, immutable, matches document ID)
+    //   - createdAt: timestamp (required, server timestamp)
+    //
+    // ===============================================================
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidTributeData(data, characterId) {
+      return data.keys().hasAll(['characterId', 'flowerCount', 'updatedAt'])
+        && data.keys().hasOnly(['characterId', 'flowerCount', 'updatedAt'])
+        && data.characterId is string
+        && data.characterId.size() >= 1
+        && data.characterId.size() <= 128
+        && data.characterId == characterId
+        && data.flowerCount is int
+        && data.flowerCount >= 1
+        && data.flowerCount <= 1000000000
+        && data.updatedAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function isValidVisitorData(data, characterId, visitorId) {
+      return data.keys().hasAll(['characterId', 'visitorId', 'createdAt'])
+        && data.keys().hasOnly(['characterId', 'visitorId', 'createdAt'])
+        && data.characterId is string
+        && data.characterId.size() >= 1
+        && data.characterId.size() <= 128
+        && data.characterId == characterId
+        && data.visitorId is string
+        && data.visitorId.size() >= 1
+        && data.visitorId.size() <= 128
+        && data.visitorId == visitorId
+        && data.createdAt is timestamp
+        && data.createdAt == request.time;
+    }
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Aggregate flower counts per character tombstone
+    match /tributes/{characterId} {
+      allow get: if isValidId(characterId);
+      allow list: if false;
+
+      allow create: if isValidId(characterId)
+        && isValidTributeData(incoming(), characterId)
+        && incoming().flowerCount == 1;
+
+      allow update: if isValidId(characterId)
+        && isValidTributeData(incoming(), characterId)
+        && incoming().characterId == existing().characterId
+        && incoming().diff(existing()).affectedKeys().hasOnly(['flowerCount', 'updatedAt'])
+        && incoming().flowerCount == existing().flowerCount + 1;
+
+      allow delete: if false;
+
+      // Unique visitor receipt per character (1 flower per visitor, immutable once created)
+      match /visitors/{visitorId} {
+        allow get: if isValidId(characterId) && isValidId(visitorId);
+        allow list: if false;
+
+        allow create: if isValidId(characterId)
+          && isValidId(visitorId)
+          && isValidVisitorData(incoming(), characterId, visitorId);
+
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+  }
+}

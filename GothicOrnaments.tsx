@@ -105,27 +105,27 @@ export const GothicFilmGrainOverlay: React.FC<{ className?: string }> = ({
           />
         </filter>
 
-        {/* Subtle Weathered Lithograph Filter for Typography Harmonization */}
+        {/* Weathered Lithograph Filter for Graphic Elements & Ornaments */}
         <filter
           id="gothic-chalk-print"
-          x="-5%"
-          y="-5%"
-          width="110%"
-          height="110%"
+          x="-20%"
+          y="-30%"
+          width="140%"
+          height="160%"
         >
           <feTurbulence
             type="fractalNoise"
-            baseFrequency="0.88"
+            baseFrequency="0.82"
             numOctaves="4"
             seed="27"
             result="chalkTex"
           />
           <feColorMatrix
             type="matrix"
-            values="0 0 0 0 1
-                    0 0 0 0 1
-                    0 0 0 0 1
-                    0 0 0 1.45 0.22"
+            values="0 0 0 0 0.88
+                    0 0 0 0 0.88
+                    0 0 0 0 0.91
+                    0 0 0 1.75 -0.04"
             in="chalkTex"
             result="chalkAlphaMask"
           />
@@ -133,6 +133,45 @@ export const GothicFilmGrainOverlay: React.FC<{ className?: string }> = ({
             operator="in"
             in="SourceGraphic"
             in2="chalkAlphaMask"
+          />
+        </filter>
+
+        {/* High-Definition Weathered Chalk-Stipple & Engraved Stone Filter for Solid Typography */}
+        <filter
+          id="gothic-text-chalk"
+          x="-25%"
+          y="-38%"
+          width="150%"
+          height="176%"
+        >
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.72 0.78"
+            numOctaves="4"
+            seed="19"
+            result="fineChalk"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="fineChalk"
+            scale="0.75"
+            xChannelSelector="R"
+            yChannelSelector="G"
+            result="roughenedText"
+          />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0.82
+                    0 0 0 0 0.82
+                    0 0 0 0 0.85
+                    0 0 0 2.15 -0.24"
+            in="fineChalk"
+            result="textChalkMask"
+          />
+          <feComposite
+            operator="in"
+            in="roughenedText"
+            in2="textChalkMask"
           />
         </filter>
       </defs>

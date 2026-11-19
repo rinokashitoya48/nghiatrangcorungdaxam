@@ -89,7 +89,7 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[93vh] w-full max-w-2xl flex-col overflow-hidden bg-[#030304] shadow-[0_0_60px_rgba(0,0,0,0.98)] sm:w-[90%] sm:max-w-[840px]"
+        className="relative flex max-h-[93vh] w-full max-w-[900px] flex-col overflow-hidden bg-[#030304] shadow-[0_0_60px_rgba(0,0,0,0.98)] [container-type:inline-size] sm:w-[92%]"
       >
         {/* Main Screen's Unified 9-Slice Gothic Outer Frame */}
         <div
@@ -106,19 +106,19 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
                 onDeleteCharacter(character.id);
                 onClose();
               }}
-              className="flex h-7 items-center gap-1.5 border border-red-900/70 bg-red-950/60 px-2.5 text-[11px] text-red-200 backdrop-blur-xs transition-colors hover:border-red-500 sm:h-9 sm:px-3.5 sm:text-sm"
+              className="flex h-7 items-center gap-1.5 border border-red-900/70 bg-red-950/60 px-2.5 text-[11px] text-red-200 backdrop-blur-xs transition-colors hover:border-red-500 sm:h-10 sm:px-4 sm:text-base"
             >
-              <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <Trash2 className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5" />
               <span>Xóa</span>
             </button>
           )}
           <button
             type="button"
             onClick={onClose}
-            className="flex h-7 w-7 cursor-pointer items-center justify-center border border-zinc-600/70 bg-[#050507]/85 text-zinc-300 backdrop-blur-xs transition-colors hover:border-zinc-300 hover:text-white sm:h-9 sm:w-9"
+            className="flex h-7 w-7 cursor-pointer items-center justify-center border border-zinc-600/70 bg-[#050507]/85 text-zinc-300 backdrop-blur-xs transition-colors hover:border-zinc-300 hover:text-white sm:h-10 sm:w-10"
             aria-label="Đóng hồ sơ"
           >
-            <X className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5" />
+            <X className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
           </button>
         </div>
 
@@ -133,11 +133,11 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
         />
 
         {/* Scrollable Content Inset Inside the Gothic Frame Double Lines */}
-        <div className="relative z-10 m-[22px] overflow-y-auto px-3.5 pt-5 pb-12 sm:m-[38px] sm:px-8 sm:pt-7 sm:pb-16">
+        <div className="relative z-10 m-[22px] overflow-y-auto px-[3.8cqw] pt-[5cqw] pb-[12cqw] sm:m-[38px]">
           {/* Centered & Balanced Header Synchronized with Main Entrance Typography */}
-          <header className="gothic-chalk-print border-b border-zinc-800/90 px-8 pt-2 pb-4 text-center sm:px-14 sm:pt-2 sm:pb-5">
-            <div className="mb-1 flex items-center justify-center gap-1.5 font-serif-title text-[9px] leading-none font-normal tracking-[0.11em] text-[#c4c4cc] uppercase sm:mb-1.5 sm:gap-2.5 sm:text-[15px] sm:tracking-[0.24em]">
-              <span aria-hidden="true" className="shrink-0 text-[7px] text-[#a1a1aa] sm:text-[10px]">
+          <header className="gothic-chalk-print border-b border-zinc-800/90 px-[8cqw] pt-[2cqw] pb-[4cqw] text-center">
+            <div className="mb-[1.2cqw] flex items-center justify-center gap-[1.6cqw] font-serif-title text-[2.45cqw] leading-none font-normal tracking-[0.14em] text-[#c4c4cc] uppercase">
+              <span aria-hidden="true" className="shrink-0 text-[0.75em] text-[#a1a1aa]">
                 ✦
               </span>
               <span className="flex flex-wrap items-center justify-center gap-1 text-center">
@@ -145,25 +145,25 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
                   character.affiliations || 'Biển Vĩnh Hằng • Rừng Điển Tích'
                 )}
               </span>
-              <span aria-hidden="true" className="shrink-0 text-[7px] text-[#a1a1aa] sm:text-[10px]">
+              <span aria-hidden="true" className="shrink-0 text-[0.75em] text-[#a1a1aa]">
                 ✦
               </span>
             </div>
 
             <h2
               id="character-modal-title"
-              className="font-serif-title text-2xl leading-[1.05] font-normal tracking-[0.11em] text-[#e6e6ec] uppercase sm:text-[44px] sm:tracking-[0.14em]"
+              className="font-serif-title text-[6.4cqw] leading-[1.06] font-normal tracking-[0.12em] text-[#e6e6ec] uppercase"
             >
               {character.name}
             </h2>
 
-            <p className="font-serif-title mt-1 text-[13.5px] leading-snug font-light italic text-[#d0d0d6] sm:mt-1 sm:text-[22px]">
+            <p className="font-serif-title mt-[1.2cqw] text-[3.5cqw] leading-snug font-light italic text-[#d0d0d6]">
               “{character.alias}”
             </p>
           </header>
 
           {/* Main Content Stack */}
-          <div className="mt-5 space-y-6 sm:mt-7 sm:space-y-8">
+          <div className="mt-[5cqw] space-y-[6cqw]">
             {/* Uncropped Character Portrait */}
             <div className="relative aspect-square w-full overflow-hidden border border-zinc-800 bg-[#101010]">
               <AuthenticPhotoFrame
@@ -203,18 +203,18 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
 
             {/* 1. Dedicated Link Frame Synchronized with Main Screen Double-Stepped Frame (No Side Stars) */}
             {character.promptLink && (
-              <div className="px-1 sm:px-4">
+              <div className="px-[1cqw]">
                 <a
                   href={character.promptLink.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex items-center justify-center border border-[#c8c8ce]/50 bg-[#050507]/90 px-5 py-3.5 text-center transition-all duration-300 hover:border-[#ececef] hover:bg-[#0e0e13] sm:px-8 sm:py-5"
+                  className="group relative flex items-center justify-center border border-[#c8c8ce]/50 bg-[#050507]/90 px-[5cqw] py-[3.5cqw] text-center transition-all duration-300 hover:border-[#ececef] hover:bg-[#0e0e13]"
                 >
                   <span
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/25 transition-colors duration-300 group-hover:border-[#d4d4d8]/55 sm:inset-[3.5px]"
                   />
-                  <span className="relative z-10 font-serif-title text-[12.5px] leading-relaxed font-normal tracking-[0.05em] text-[#e4e4ea] uppercase italic underline-offset-4 group-hover:text-white group-hover:underline sm:text-[19px]">
+                  <span className="relative z-10 font-serif-title text-[3.1cqw] leading-relaxed font-normal tracking-[0.05em] text-[#e4e4ea] uppercase italic underline-offset-4 group-hover:text-white group-hover:underline">
                     {character.promptLink.text}
                   </span>
                 </a>
@@ -222,43 +222,43 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
             )}
 
             {/* 2. Open Engraved Epitaph Inscription (Harmonized with Top Header — Zero Clunky Grey Box) */}
-            <div className="gothic-chalk-print px-2 text-center sm:px-6">
+            <div className="gothic-chalk-print px-[2cqw] text-center">
               {/* Top Tapered Hairline */}
               <div
                 aria-hidden="true"
-                className="mx-auto mb-5 h-px w-4/5 bg-gradient-to-r from-transparent via-zinc-700/80 to-transparent sm:mb-7"
+                className="mx-auto mb-[5cqw] h-px w-4/5 bg-gradient-to-r from-transparent via-zinc-700/80 to-transparent"
               />
 
               {/* Symmetrical 2-Column Lockup: Cổ Tự Khắc Bia & Khế Ước Linh Hồn */}
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
+              <div className="grid grid-cols-1 gap-[4.5cqw] sm:grid-cols-2 sm:gap-[4cqw]">
                 <div className="flex flex-col items-center justify-center">
-                  <div className="mb-1 flex items-center justify-center gap-1.5 font-serif-title text-[9.5px] tracking-[0.22em] text-[#a6a6b0] uppercase sm:mb-1.5 sm:gap-2 sm:text-[13.5px]">
-                    <span aria-hidden="true" className="text-[7px] text-[#8e8e98] sm:text-[9px]">
+                  <div className="mb-[1.2cqw] flex items-center justify-center gap-[1.5cqw] font-serif-title text-[2.3cqw] tracking-[0.22em] text-[#a6a6b0] uppercase">
+                    <span aria-hidden="true" className="text-[0.75em] text-[#8e8e98]">
                       ✦
                     </span>
                     <span>Cổ Tự Khắc Bia</span>
-                    <span aria-hidden="true" className="text-[7px] text-[#8e8e98] sm:text-[9px]">
+                    <span aria-hidden="true" className="text-[0.75em] text-[#8e8e98]">
                       ✦
                     </span>
                   </div>
-                  <div className="font-serif-title text-[15px] font-normal tracking-[0.04em] text-[#ececef] sm:text-[21px]">
+                  <div className="font-serif-title text-[3.4cqw] font-normal tracking-[0.04em] text-[#ececef]">
                     {renderDelicateSeparators(
                       character.appearance || 'Phương Tây Huyền Ảo • Tình Trai'
                     )}
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center justify-center border-t border-zinc-800/60 pt-4 sm:border-t-0 sm:border-l sm:border-zinc-800/70 sm:pt-0 sm:pl-6">
-                  <div className="mb-1 flex items-center justify-center gap-1.5 font-serif-title text-[9.5px] tracking-[0.22em] text-[#a6a6b0] uppercase sm:mb-1.5 sm:gap-2 sm:text-[13.5px]">
-                    <span aria-hidden="true" className="text-[7px] text-[#8e8e98] sm:text-[9px]">
+                <div className="flex flex-col items-center justify-center border-t border-zinc-800/60 pt-[4cqw] sm:border-t-0 sm:border-l sm:border-zinc-800/70 sm:pt-0 sm:pl-[4cqw]">
+                  <div className="mb-[1.2cqw] flex items-center justify-center gap-[1.5cqw] font-serif-title text-[2.3cqw] tracking-[0.22em] text-[#a6a6b0] uppercase">
+                    <span aria-hidden="true" className="text-[0.75em] text-[#8e8e98]">
                       ✦
                     </span>
                     <span>Khế Ước Linh Hồn</span>
-                    <span aria-hidden="true" className="text-[7px] text-[#8e8e98] sm:text-[9px]">
+                    <span aria-hidden="true" className="text-[0.75em] text-[#8e8e98]">
                       ✦
                     </span>
                   </div>
-                  <div className="font-serif-title text-[15px] font-normal tracking-[0.04em] text-[#ececef] sm:text-[21px]">
+                  <div className="font-serif-title text-[3.4cqw] font-normal tracking-[0.04em] text-[#ececef]">
                     {character.personality ||
                       'Thần Chết × User (Thần Chết Tập Sự)'}
                   </div>
@@ -267,22 +267,22 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
 
               {/* Bối Cảnh: Centered Literary Quote Style Matching Main Screen */}
               {(character.backgroundContext || character.quote) && (
-                <div className="mt-6 pt-5 sm:mt-8 sm:pt-7">
-                  <div className="mb-3 flex items-center justify-center gap-3 sm:mb-4 sm:gap-4">
-                    <div className="h-px flex-1 max-w-[72px] bg-gradient-to-r from-transparent to-zinc-600/70 sm:max-w-[120px]" />
-                    <span className="flex items-center gap-1.5 font-serif-title text-[9.5px] tracking-[0.24em] text-[#a6a6b0] uppercase sm:gap-2 sm:text-[13.5px]">
-                      <span aria-hidden="true" className="text-[7px] text-[#8e8e98] sm:text-[9px]">
+                <div className="mt-[6cqw] pt-[5cqw]">
+                  <div className="mb-[3cqw] flex items-center justify-center gap-[3cqw]">
+                    <div className="h-px flex-1 max-w-[18cqw] bg-gradient-to-r from-transparent to-zinc-600/70" />
+                    <span className="flex items-center gap-[1.5cqw] font-serif-title text-[2.3cqw] tracking-[0.24em] text-[#a6a6b0] uppercase">
+                      <span aria-hidden="true" className="text-[0.75em] text-[#8e8e98]">
                         ✦
                       </span>
                       <span>Bối Cảnh</span>
-                      <span aria-hidden="true" className="text-[7px] text-[#8e8e98] sm:text-[9px]">
+                      <span aria-hidden="true" className="text-[0.75em] text-[#8e8e98]">
                         ✦
                       </span>
                     </span>
-                    <div className="h-px flex-1 max-w-[72px] bg-gradient-to-l from-transparent to-zinc-600/70 sm:max-w-[120px]" />
+                    <div className="h-px flex-1 max-w-[18cqw] bg-gradient-to-l from-transparent to-zinc-600/70" />
                   </div>
 
-                  <p className="font-serif-title mx-auto max-w-[94%] text-[14.5px] leading-[1.75] font-light italic text-[#d8d8e0] sm:text-[20px] sm:leading-[1.8]">
+                  <p className="font-serif-title mx-auto max-w-[94%] text-[3.4cqw] leading-[1.78] font-light italic text-[#d8d8e0]">
                     “{character.backgroundContext || character.quote}”
                   </p>
                 </div>
@@ -291,19 +291,22 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
               {/* Chalk-Print Hairline Divider with Enlarged 4-Pointed Star */}
               <div
                 aria-hidden="true"
-                className="mx-auto mt-6 flex w-4/5 items-center justify-center gap-3.5 sm:mt-8 sm:gap-4"
+                className="mx-auto mt-[6cqw] flex w-4/5 items-center justify-center gap-[3.5cqw]"
               >
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent to-zinc-700/70" />
-                <span className="text-[13px] leading-none text-[#8e8e98] sm:text-[17px]">
+                <span className="text-[3cqw] leading-none text-[#8e8e98]">
                   ✦
                 </span>
                 <div className="h-px flex-1 bg-gradient-to-l from-transparent to-zinc-700/70" />
               </div>
             </div>
 
-            {/* 3. Story Content (Harmonized in Cormorant Garamond Serif & Chalk-Silver Tone to Match Bối Cảnh) */}
-            <div className="px-2 sm:px-5">
-              <div className="font-serif-title space-y-4 text-left text-[15.5px] leading-[1.82] font-normal text-[#dcdce4] sm:space-y-5 sm:text-[21px] sm:leading-[1.88]">
+            {/* 3. Story Content (Harmonized in Cormorant Garamond Serif & Chalk-Silver Tone to Match Bối Cảnh — Justified on Both Sides & 1:1 cqw) */}
+            <div className="px-[2cqw]">
+              <div
+                className="font-serif-title space-y-[4cqw] text-justify text-[3.6cqw] leading-[1.82] font-normal text-[#dcdce4]"
+                style={{ textAlign: 'justify', textAlignLast: 'left' }}
+              >
                 {storyParagraphs.map((paragraph, idx) => {
                   const isDivider = paragraph === '***' || paragraph === '* * *';
                   if (isDivider) {
@@ -320,7 +323,7 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
                     );
                   }
                   return (
-                    <p key={idx}>
+                    <p key={idx} className="text-justify">
                       {renderFormattedParagraph(paragraph)}
                     </p>
                   );

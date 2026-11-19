@@ -19,7 +19,7 @@ export const BackgroundMusicWidget: React.FC = () => {
   return (
     <aside
       aria-label="Nhạc nền nghĩa trang"
-      className="fixed bottom-4 left-4 z-40 select-none font-sans-clean transition-all duration-300 sm:bottom-6 sm:left-6"
+      className="music-widget-scale fixed bottom-4 left-4 z-40 select-none font-sans-clean transition-all duration-300 sm:bottom-6 sm:left-6"
     >
       {/* Mini Collapsed Pill / Disc */}
       {!isExpanded ? (
