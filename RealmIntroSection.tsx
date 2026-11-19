@@ -137,7 +137,7 @@ export const RealmIntroSection: React.FC<RealmIntroSectionProps> = ({
           className="group mt-[3.6cqw] mb-[6.2cqw] inline-flex cursor-pointer flex-col items-center justify-center focus:outline-none"
         >
           <img
-            src="/assets/aistudio/gothic_sigil_emblem.png?v=3"
+            src="/gothic_sigil_emblem.png"
             alt="Biểu tượng Gothic cổ"
             referrerPolicy="no-referrer"
             className={`gothic-chalk-print h-auto w-[25.8cqw] object-contain transition-all duration-500 ${
