@@ -709,9 +709,9 @@ function hasVietnameseDiacritics(str: string): boolean {
             style={{ textAlign: 'justify', textAlignLast: 'left' }}
           >
             <p className="text-justify">
-              trước khi bắt đầu đọc văn bia, tình hãy đặt một nhành bông bạch
-              cúc trước mộ phần của người đã khuất. mỗi văn bia đều có lá thư
-              gửi &quot;thân yêu&quot;, tình nhấn vào đó sẽ kết nối với linh hồn
+              tình hãy đặt một nhành bông bạch cúc trước mộ phần người đã
+              khuất rồi mới đọc văn bia. mỗi văn bia đều có lá thư gửi
+              &quot;thân yêu&quot;, tình nhấn vào đó sẽ kết nối với linh hồn
               tình muốn gặp gỡ.
             </p>
           </div>
