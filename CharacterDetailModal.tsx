@@ -29,7 +29,7 @@ function renderDelicateSeparators(text: string): React.ReactNode {
             {idx < parts.length - 1 && (
               <span
                 aria-hidden="true"
-                className="mx-1.5 sm:mx-2 inline-block text-[5px] sm:text-[6px] text-zinc-400/80 align-middle select-none"
+                className="mx-[1.4cqw] inline-block text-[0.42em] text-zinc-400/80 align-middle select-none"
               >
                 ●
               </span>
@@ -81,7 +81,7 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/92 p-2 backdrop-blur-md sm:p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/92 p-[2vmin] backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-labelledby="character-modal-title"
@@ -89,16 +89,16 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[93vh] w-full max-w-[900px] flex-col overflow-hidden bg-[#030304] shadow-[0_0_60px_rgba(0,0,0,0.98)] [container-type:inline-size] sm:w-[92%]"
+        className="relative flex max-h-[93vh] w-[96%] max-w-[900px] flex-col overflow-hidden bg-[#030304] shadow-[0_0_60px_rgba(0,0,0,0.98)] [container-type:inline-size]"
       >
         {/* Main Screen's Unified 9-Slice Gothic Outer Frame */}
         <div
           aria-hidden="true"
-          className="gothic-modal-unified-frame pointer-events-none absolute inset-1 z-20 opacity-95 sm:inset-2.5"
+          className="gothic-modal-unified-frame pointer-events-none absolute inset-[1cqw] z-20 opacity-95"
         />
 
         {/* Top-Right Action Buttons */}
-        <div className="absolute top-6 right-6 z-30 flex items-center gap-2 sm:top-10 sm:right-10">
+        <div className="absolute top-[5.8cqw] right-[5.8cqw] z-30 flex items-center gap-[1.8cqw]">
           {character.isCustom && onDeleteCharacter && (
             <button
               type="button"
@@ -106,34 +106,34 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
                 onDeleteCharacter(character.id);
                 onClose();
               }}
-              className="flex h-7 items-center gap-1.5 border border-red-900/70 bg-red-950/60 px-2.5 text-[11px] text-red-200 backdrop-blur-xs transition-colors hover:border-red-500 sm:h-10 sm:px-4 sm:text-base"
+              className="flex h-[7.2cqw] items-center gap-[1.4cqw] border border-red-900/70 bg-red-950/60 px-[2.8cqw] text-[2.8cqw] text-red-200 backdrop-blur-xs transition-colors hover:border-red-500"
             >
-              <Trash2 className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5" />
+              <Trash2 className="h-[3.4cqw] w-[3.4cqw]" />
               <span>Xóa</span>
             </button>
           )}
           <button
             type="button"
             onClick={onClose}
-            className="flex h-7 w-7 cursor-pointer items-center justify-center border border-zinc-600/70 bg-[#050507]/85 text-zinc-300 backdrop-blur-xs transition-colors hover:border-zinc-300 hover:text-white sm:h-10 sm:w-10"
+            className="flex h-[7.2cqw] w-[7.2cqw] cursor-pointer items-center justify-center border border-zinc-600/70 bg-[#050507]/85 text-zinc-300 backdrop-blur-xs transition-colors hover:border-zinc-300 hover:text-white"
             aria-label="Đóng hồ sơ"
           >
-            <X className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
+            <X className="h-[3.8cqw] w-[3.8cqw]" />
           </button>
         </div>
 
         {/* Soft Top & Bottom Vignettes so scrolling text never clashes with Corner Filigrees */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-[22px] right-[22px] left-[22px] z-15 h-9 bg-gradient-to-b from-[#030304] via-[#030304]/75 to-transparent sm:top-[38px] sm:right-[38px] sm:left-[38px] sm:h-12"
+          className="pointer-events-none absolute top-[5.6cqw] right-[5.6cqw] left-[5.6cqw] z-15 h-[8.5cqw] bg-gradient-to-b from-[#030304] via-[#030304]/75 to-transparent"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute right-[22px] bottom-[22px] left-[22px] z-15 h-12 bg-gradient-to-t from-[#030304] via-[#030304]/85 to-transparent sm:right-[38px] sm:bottom-[38px] sm:left-[38px] sm:h-16"
+          className="pointer-events-none absolute right-[5.6cqw] bottom-[5.6cqw] left-[5.6cqw] z-15 h-[11cqw] bg-gradient-to-t from-[#030304] via-[#030304]/85 to-transparent"
         />
 
         {/* Scrollable Content Inset Inside the Gothic Frame Double Lines */}
-        <div className="relative z-10 m-[22px] overflow-y-auto px-[3.8cqw] pt-[5cqw] pb-[12cqw] sm:m-[38px]">
+        <div className="relative z-10 m-[5.6cqw] overflow-y-auto px-[3.8cqw] pt-[5cqw] pb-[12cqw]">
           {/* Centered & Balanced Header Synchronized with Main Entrance Typography */}
           <header className="gothic-chalk-print border-b border-zinc-800/90 px-[8cqw] pt-[2cqw] pb-[4cqw] text-center">
             <div className="mb-[1.2cqw] flex items-center justify-center gap-[1.6cqw] font-serif-title text-[2.45cqw] leading-none font-normal tracking-[0.14em] text-[#c4c4cc] uppercase">
@@ -177,13 +177,13 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
 
             {/* Thumbnails (if multiple images) */}
             {allImages.length > 1 && (
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-[2.2cqw]">
                 {allImages.map((imgItem, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => setActiveImageIdx(idx)}
-                    className={`h-14 w-14 overflow-hidden border transition-all sm:h-20 sm:w-20 ${
+                    className={`h-[14cqw] w-[14cqw] overflow-hidden border transition-all ${
                       activeImageIdx === idx
                         ? 'border-zinc-200 ring-1 ring-zinc-200'
                         : 'border-zinc-800 opacity-60 hover:opacity-100'
@@ -212,7 +212,7 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
                 >
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/25 transition-colors duration-300 group-hover:border-[#d4d4d8]/55 sm:inset-[3.5px]"
+                    className="pointer-events-none absolute inset-[0.75cqw] border border-[#a1a1aa]/25 transition-colors duration-300 group-hover:border-[#d4d4d8]/55"
                   />
                   <span className="relative z-10 font-serif-title text-[3.1cqw] leading-relaxed font-normal tracking-[0.05em] text-[#e4e4ea] uppercase italic underline-offset-4 group-hover:text-white group-hover:underline">
                     {character.promptLink.text}
@@ -221,7 +221,7 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
               </div>
             )}
 
-            {/* 2. Open Engraved Epitaph Inscription (Harmonized with Top Header — Zero Clunky Grey Box) */}
+            {/* 2. Open Engraved Epitaph Inscription (Harmonized with Top Header — 1:1 Mobile & Web/Device) */}
             <div className="gothic-chalk-print px-[2cqw] text-center">
               {/* Top Tapered Hairline */}
               <div
@@ -229,8 +229,8 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
                 className="mx-auto mb-[5cqw] h-px w-4/5 bg-gradient-to-r from-transparent via-zinc-700/80 to-transparent"
               />
 
-              {/* Symmetrical 2-Column Lockup: Cổ Tự Khắc Bia & Khế Ước Linh Hồn */}
-              <div className="grid grid-cols-1 gap-[4.5cqw] sm:grid-cols-2 sm:gap-[4cqw]">
+              {/* Stacked Lockup Synchronized 1:1 Across Mobile & Web/Device: Cổ Tự Khắc Bia & Khế Ước Linh Hồn */}
+              <div className="grid grid-cols-1 gap-[4.5cqw]">
                 <div className="flex flex-col items-center justify-center">
                   <div className="mb-[1.2cqw] flex items-center justify-center gap-[1.5cqw] font-serif-title text-[2.3cqw] tracking-[0.22em] text-[#a6a6b0] uppercase">
                     <span aria-hidden="true" className="text-[0.75em] text-[#8e8e98]">
@@ -248,7 +248,7 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center justify-center border-t border-zinc-800/60 pt-[4cqw] sm:border-t-0 sm:border-l sm:border-zinc-800/70 sm:pt-0 sm:pl-[4cqw]">
+                <div className="flex flex-col items-center justify-center border-t border-zinc-800/60 pt-[4cqw]">
                   <div className="mb-[1.2cqw] flex items-center justify-center gap-[1.5cqw] font-serif-title text-[2.3cqw] tracking-[0.22em] text-[#a6a6b0] uppercase">
                     <span aria-hidden="true" className="text-[0.75em] text-[#8e8e98]">
                       ✦
@@ -314,7 +314,7 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
                       <div
                         key={idx}
                         aria-hidden="true"
-                        className="gothic-chalk-print flex items-center justify-center gap-3.5 py-2 text-[11px] tracking-[0.4em] text-[#8e8e98] select-none sm:py-3 sm:text-[14px]"
+                        className="gothic-chalk-print flex items-center justify-center gap-[3.2cqw] py-[2.2cqw] text-[2.8cqw] tracking-[0.4em] text-[#8e8e98] select-none"
                       >
                         <span>✦</span>
                         <span>✦</span>
@@ -333,11 +333,11 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
               {/* Closing Tailpiece Ornament */}
               <div
                 aria-hidden="true"
-                className="gothic-chalk-print mt-8 flex items-center justify-center gap-3 sm:mt-12"
+                className="gothic-chalk-print mt-[8cqw] flex items-center justify-center gap-[3cqw]"
               >
-                <span className="h-px w-10 bg-gradient-to-r from-transparent to-zinc-700/70 sm:w-16" />
-                <span className="text-[11px] text-[#8e8e98] sm:text-[14px]">✦</span>
-                <span className="h-px w-10 bg-gradient-to-l from-transparent to-zinc-700/70 sm:w-16" />
+                <span className="h-px w-[12cqw] bg-gradient-to-r from-transparent to-zinc-700/70" />
+                <span className="text-[2.8cqw] text-[#8e8e98]">✦</span>
+                <span className="h-px w-[12cqw] bg-gradient-to-l from-transparent to-zinc-700/70" />
               </div>
             </div>
 
@@ -345,17 +345,17 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
               character.trinkets.length > 0) && <GothicCrossDivider />}
 
             {character.relationships.length > 0 && (
-              <div className="px-2 sm:px-5">
-                <h3 className="text-center font-serif-title text-xs tracking-widest text-zinc-400 uppercase">
+              <div className="px-[2.5cqw]">
+                <h3 className="text-center font-serif-title text-[2.7cqw] tracking-widest text-zinc-400 uppercase">
                   Mối Quan Hệ & Liên Kết
                 </h3>
-                <div className="mt-3 space-y-2.5">
+                <div className="mt-[3cqw] space-y-[2.5cqw]">
                   {character.relationships.map((rel, idx) => (
                     <div
                       key={idx}
-                      className="border-b border-zinc-800/70 pb-3 text-center"
+                      className="border-b border-zinc-800/70 pb-[2.8cqw] text-center"
                     >
-                      <div className="flex items-center justify-center gap-2 text-xs">
+                      <div className="flex items-center justify-center gap-[1.8cqw] text-[2.8cqw]">
                         <span className="font-semibold text-zinc-100">
                           {rel.name}
                         </span>
@@ -364,7 +364,7 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
                           {rel.relation}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-zinc-300">{rel.note}</p>
+                      <p className="mt-[1cqw] text-[2.8cqw] text-zinc-300">{rel.note}</p>
                     </div>
                   ))}
                 </div>
@@ -372,17 +372,17 @@ export const CharacterDetailModal: React.FC<CharacterDetailModalProps> = ({
             )}
 
             {character.trinkets.length > 0 && (
-              <div className="px-2 sm:px-5">
-                <h3 className="text-center font-serif-title text-xs tracking-widest text-zinc-400 uppercase">
+              <div className="px-[2.5cqw]">
+                <h3 className="text-center font-serif-title text-[2.7cqw] tracking-widest text-zinc-400 uppercase">
                   Di Vật & Kỷ Vật Mang Theo
                 </h3>
-                <ul className="mt-2.5 space-y-2 text-sm text-zinc-300">
+                <ul className="mt-[2.5cqw] space-y-[2cqw] text-[3.1cqw] text-zinc-300">
                   {character.trinkets.map((item, idx) => (
                     <li
                       key={idx}
-                      className="flex items-baseline justify-center gap-3 border-b border-zinc-800/60 pb-1.5"
+                      className="flex items-baseline justify-center gap-[2.8cqw] border-b border-zinc-800/60 pb-[1.5cqw]"
                     >
-                      <span className="font-tabular text-xs text-zinc-500">
+                      <span className="font-tabular text-[2.7cqw] text-zinc-500">
                         0{idx + 1}.
                       </span>
                       <span>{item}</span>

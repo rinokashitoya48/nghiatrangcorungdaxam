@@ -30,7 +30,7 @@ export const RealmIntroSection: React.FC<RealmIntroSectionProps> = ({
 
   const portraitAlt = isCoTich ? 'Rừng Cổ Tích' : 'Rừng Điển Tích';
 
-  const lordishHeading = isCoTich ? 'Fairy Tale' : 'Chronicles';
+  const realmDisplayHeading = isCoTich ? 'Fairy Tale' : 'Folklore';
 
   return (
     <section className="relative w-full pt-[1.5cqw] pb-[3cqw]">
@@ -90,20 +90,20 @@ export const RealmIntroSection: React.FC<RealmIntroSectionProps> = ({
           </div>
         </div>
 
-        {/* 3. TIÊU ĐỀ FONT iCiel Lordish Regular (1:1 cqw) */}
-        <div className="relative mt-[1.6cqw] inline-block px-1">
+        {/* 3. TIÊU ĐỀ FONT A Gothique Time (1:1 cqw) */}
+        <div className="relative mt-[2.4cqw] inline-block px-1">
           <h2
-            className={`font-lordish gothic-lordish-chalk leading-[0.94] font-normal tracking-[0.01em] whitespace-nowrap ${
-              isCoTich ? 'text-[12.4cqw]' : 'text-[11.4cqw]'
+            className={`font-gothique gothic-time-chalk leading-[1.06] font-normal tracking-[0.03em] whitespace-nowrap ${
+              isCoTich ? 'text-[15.4cqw]' : 'text-[16.8cqw]'
             }`}
           >
-            {lordishHeading}
+            {realmDisplayHeading}
           </h2>
         </div>
 
-        {/* 4. QUOTES PHỤ (1:1 cqw — không bao giờ bị nhỏ hay chạm cột ở bất kỳ màn hình nào) */}
+        {/* 4. QUOTES PHỤ (1:1 cqw — thoáng nhẹ chuẩn nhịp editorial) */}
         {isCoTich ? (
-          <p className="font-sans-clean gothic-text-chalk mt-[1.6cqw] flex w-full flex-col items-center text-[2.48cqw] leading-[1.48] font-normal tracking-[0.005em] text-[#b4b4be]">
+          <p className="font-sans-clean gothic-text-chalk mt-[2.2cqw] flex w-full flex-col items-center text-[2.42cqw] leading-[1.62] font-normal tracking-[0.015em] text-[#b4b4be]">
             <span className="block whitespace-nowrap">
               viễn cách trùng dương, gửi đến tiết đông diệu vợi,
             </span>
@@ -112,7 +112,7 @@ export const RealmIntroSection: React.FC<RealmIntroSectionProps> = ({
             </span>
           </p>
         ) : (
-          <p className="font-sans-clean gothic-text-chalk mt-[1.6cqw] flex w-full flex-col items-center text-[2.48cqw] leading-[1.48] font-normal tracking-[0.005em] text-[#b4b4be]">
+          <p className="font-sans-clean gothic-text-chalk mt-[2.2cqw] flex w-full flex-col items-center text-[2.42cqw] leading-[1.62] font-normal tracking-[0.015em] text-[#b4b4be]">
             <span className="block whitespace-nowrap">
               một thuở chiều thu buồn man mác,
             </span>
@@ -125,7 +125,7 @@ export const RealmIntroSection: React.FC<RealmIntroSectionProps> = ({
           </p>
         )}
 
-        {/* 5. ELEMENT Ở GIỮA — CĂN ĐÚNG VẠCH ĐỎ ĐỂ ĐÁY QUOTES PHỤ TRÊN & TEXT DƯỚI ĐƯỢC THỞ */}
+        {/* 5. ELEMENT Ở GIỮA — MẶT DÂY CHÙM HOA VĂN KHẮC CỔ THANH MẢNH */}
         <button
           type="button"
           onClick={togglePlay}
@@ -134,24 +134,24 @@ export const RealmIntroSection: React.FC<RealmIntroSectionProps> = ({
               ? `Đang phát: ${trackTitle} — Nhấn để tạm dừng`
               : `Nhấn để ngân vang giai điệu: ${trackTitle}`
           }
-          className="group mt-[3.6cqw] mb-[6.2cqw] inline-flex cursor-pointer flex-col items-center justify-center focus:outline-none"
+          className="group mt-[7.2cqw] mb-[8.8cqw] inline-flex cursor-pointer flex-col items-center justify-center focus:outline-none"
         >
           <img
-            src="/gothic_sigil_emblem.png"
-            alt="Biểu tượng Gothic cổ"
+            src="/assets/aistudio/gothic_hanging_pendant.png?v=1"
+            alt="Hoa văn chùm treo khắc cổ Gothic"
             referrerPolicy="no-referrer"
-            className={`gothic-chalk-print h-auto w-[25.8cqw] object-contain transition-all duration-500 ${
+            className={`gothic-chalk-print h-auto w-[10.8cqw] object-contain transition-all duration-500 ${
               isPlaying
-                ? 'opacity-100 drop-shadow-[0_0_16px_rgba(216,216,226,0.3)] group-hover:scale-[1.03]'
-                : 'opacity-95 group-hover:scale-[1.03] group-hover:opacity-100'
+                ? 'opacity-98 drop-shadow-[0_0_14px_rgba(216,216,226,0.28)] group-hover:scale-[1.04]'
+                : 'opacity-90 group-hover:scale-[1.04] group-hover:opacity-100'
             }`}
           />
         </button>
 
-        {/* 6. HAI CỔNG ĐIỀU HƯỚNG — TỶ LỆ 1:1 ĐỒNG BỘ HOÀN HẢO */}
+        {/* 6. HAI CỔNG ĐIỀU HƯỚNG — CHỮ NHỎ THANH, GIÃN RỘNG & THOÁNG MẮT */}
         <nav
           aria-label="Điều hướng khu rừng"
-          className="flex w-full flex-col items-center justify-center gap-[4.2cqw]"
+          className="mb-[5.5cqw] flex w-full flex-col items-center justify-center gap-[5.8cqw]"
         >
           {/* Portal 1: Back to Gatekeeper Introduction Page */}
           <button
@@ -159,27 +159,24 @@ export const RealmIntroSection: React.FC<RealmIntroSectionProps> = ({
             onClick={onBackToGate}
             className="group flex cursor-pointer flex-col items-center justify-center focus:outline-none"
           >
-            <span className="font-serif-title gothic-text-chalk flex items-center gap-[2.5cqw] text-[3.6cqw] leading-none font-normal tracking-[0.14em] whitespace-nowrap text-[#bcbcc6] uppercase transition-all duration-300 group-hover:tracking-[0.17em] group-hover:text-[#e2e2ec]">
+            <span className="font-serif-title gothic-text-chalk flex items-center gap-[2.8cqw] text-[2.85cqw] leading-none font-normal tracking-[0.24em] whitespace-nowrap text-[#c0c0ca] uppercase transition-all duration-300 group-hover:tracking-[0.28em] group-hover:text-[#ececf4]">
               <span
                 aria-hidden="true"
-                className="text-[0.65em] text-[#a4a4ae] transition-transform duration-300 group-hover:scale-125 group-hover:text-[#e2e2ec]"
+                className="text-[0.62em] text-[#9a9aa4] transition-transform duration-300 group-hover:scale-125 group-hover:text-[#ececf4]"
               >
                 ✦
               </span>
               <span>NGƯỜI GÁC CỔNG</span>
               <span
                 aria-hidden="true"
-                className="text-[0.65em] text-[#a4a4ae] transition-transform duration-300 group-hover:scale-125 group-hover:text-[#e2e2ec]"
+                className="text-[0.62em] text-[#9a9aa4] transition-transform duration-300 group-hover:scale-125 group-hover:text-[#ececf4]"
               >
                 ✦
               </span>
             </span>
-            <img
-              src="/assets/aistudio/gothic_nav_divider.png?v=5"
-              alt=""
+            <span
               aria-hidden="true"
-              referrerPolicy="no-referrer"
-              className="mt-[1.6cqw] h-auto w-[43.5cqw] object-contain opacity-88 transition-all duration-300 group-hover:w-[47cqw] group-hover:opacity-100"
+              className="mt-[2.1cqw] block h-px w-[20cqw] bg-gradient-to-r from-transparent via-[#a4a4ae]/55 to-transparent transition-all duration-300 group-hover:w-[27cqw] group-hover:via-[#e2e2ec]/85"
             />
           </button>
 
@@ -191,27 +188,24 @@ export const RealmIntroSection: React.FC<RealmIntroSectionProps> = ({
             }
             className="group flex cursor-pointer flex-col items-center justify-center focus:outline-none"
           >
-            <span className="font-serif-title gothic-text-chalk flex items-center gap-[2.5cqw] text-[3.6cqw] leading-none font-normal tracking-[0.14em] whitespace-nowrap text-[#bcbcc6] uppercase transition-all duration-300 group-hover:tracking-[0.17em] group-hover:text-[#e2e2ec]">
+            <span className="font-serif-title gothic-text-chalk flex items-center gap-[2.8cqw] text-[2.85cqw] leading-none font-normal tracking-[0.24em] whitespace-nowrap text-[#c0c0ca] uppercase transition-all duration-300 group-hover:tracking-[0.28em] group-hover:text-[#ececf4]">
               <span
                 aria-hidden="true"
-                className="text-[0.65em] text-[#a4a4ae] transition-transform duration-300 group-hover:scale-125 group-hover:text-[#e2e2ec]"
+                className="text-[0.62em] text-[#9a9aa4] transition-transform duration-300 group-hover:scale-125 group-hover:text-[#ececf4]"
               >
                 ✦
               </span>
               <span>{isCoTich ? 'RỪNG ĐIỂN TÍCH' : 'RỪNG CỔ TÍCH'}</span>
               <span
                 aria-hidden="true"
-                className="text-[0.65em] text-[#a4a4ae] transition-transform duration-300 group-hover:scale-125 group-hover:text-[#e2e2ec]"
+                className="text-[0.62em] text-[#9a9aa4] transition-transform duration-300 group-hover:scale-125 group-hover:text-[#ececf4]"
               >
                 ✦
               </span>
             </span>
-            <img
-              src="/assets/aistudio/gothic_nav_divider.png?v=5"
-              alt=""
+            <span
               aria-hidden="true"
-              referrerPolicy="no-referrer"
-              className="mt-[1.6cqw] h-auto w-[43.5cqw] object-contain opacity-88 transition-all duration-300 group-hover:w-[47cqw] group-hover:opacity-100"
+              className="mt-[2.1cqw] block h-px w-[20cqw] bg-gradient-to-r from-transparent via-[#a4a4ae]/55 to-transparent transition-all duration-300 group-hover:w-[27cqw] group-hover:via-[#e2e2ec]/85"
             />
           </button>
         </nav>

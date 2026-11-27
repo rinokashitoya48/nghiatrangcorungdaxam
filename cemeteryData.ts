@@ -34,7 +34,6 @@ export interface CharacterProfile {
 
 export const UPLOADED_ASSETS = {
   memoriesGrid: '/assets/aistudio/FB_IMG_1793533191460_0b8f29a4.jpg',
-  gothicStrip: '/assets/aistudio/Picsart_26-11-02_01-21-01-042_895a8022.jpg',
   cathedralGrid: '/assets/aistudio/Picsart_26-10-31_02-28-24-161_4d861c94.jpg',
   coTichGirl: '/assets/aistudio/Picsart_26-11-19_20-18-52-028_515f0116.jpg',
   suongDenGirl: '/assets/aistudio/Picsart_26-11-19_20-18-36-064_34db3e72.jpg',

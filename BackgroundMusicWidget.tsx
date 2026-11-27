@@ -19,7 +19,7 @@ export const BackgroundMusicWidget: React.FC = () => {
   return (
     <aside
       aria-label="Nhạc nền nghĩa trang"
-      className="music-widget-scale fixed bottom-4 left-4 z-40 select-none font-sans-clean transition-all duration-300 sm:bottom-6 sm:left-6"
+      className="music-widget-scale fixed bottom-4 left-4 z-40 select-none font-sans-clean transition-all duration-300"
     >
       {/* Mini Collapsed Pill / Disc */}
       {!isExpanded ? (
@@ -57,7 +57,7 @@ export const BackgroundMusicWidget: React.FC = () => {
             className="relative z-10 flex flex-col items-start text-left cursor-pointer pr-1"
           >
             <div className="flex items-center gap-1.5">
-              <span className="font-serif-title text-[11px] font-medium tracking-[0.08em] text-[#f4f4f5] sm:text-[12.5px]">
+              <span className="font-serif-title text-[11.5px] font-medium tracking-[0.08em] text-[#f4f4f5]">
                 {trackTitle}
               </span>
               {isPlaying && (
@@ -68,7 +68,7 @@ export const BackgroundMusicWidget: React.FC = () => {
                 </span>
               )}
             </div>
-            <span className="text-[9px] font-light tracking-wider text-[#a1a1aa] sm:text-[10px]">
+            <span className="text-[9.5px] font-light tracking-wider text-[#a1a1aa]">
               {trackArtist} · {isPlaying ? 'Đang phát' : 'Đã tạm dừng'}
             </span>
           </button>
@@ -85,7 +85,7 @@ export const BackgroundMusicWidget: React.FC = () => {
         </div>
       ) : (
         /* Expanded Gothic Music Card */
-        <div className="relative w-[270px] rounded-lg border border-white/20 bg-[#070709]/95 p-3.5 shadow-[0_12px_32px_rgba(0,0,0,0.95)] backdrop-blur-md sm:w-[300px] sm:p-4">
+        <div className="relative w-[275px] rounded-lg border border-white/20 bg-[#070709]/95 p-3.5 shadow-[0_12px_32px_rgba(0,0,0,0.95)] backdrop-blur-md">
           {/* Inner hairline border */}
           <span
             aria-hidden="true"
@@ -177,7 +177,7 @@ export const BackgroundMusicWidget: React.FC = () => {
                 step="0.05"
                 value={isMuted ? 0 : volume}
                 onChange={(e) => setVolume(parseFloat(e.target.value))}
-                className="h-1 w-16 cursor-pointer accent-[#d4d4d8] sm:w-20"
+                className="h-1 w-16 cursor-pointer accent-[#d4d4d8]"
                 aria-label="Thanh âm lượng nhạc nền"
               />
             </div>

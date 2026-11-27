@@ -2,8 +2,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @font-face {
-  font-family: 'iCiel Lordish';
-  src: url('/fonts/iCielLordish-Regular.otf') format('opentype');
+  font-family: 'A Gothique Time';
+  src: url('/fonts/AGothiqueTime.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -17,7 +17,7 @@
     --font-bellwethers: 'SVN-Bellwethers', cursive;
     --font-pushkin: 'LF Pushkin', Georgia, serif;
     --font-hp001: 'HP0014hang1oly', serif;
-    --font-lordish: 'iCiel Lordish', 'Grenze Gotisch', Georgia, serif;
+    --font-gothique: 'A Gothique Time', 'Grenze Gotisch', Georgia, serif;
     --font-sans-clean: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-body: 'Spectral', Georgia, serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -51,8 +51,8 @@
   font-family: var(--font-hp001);
 }
 
-.font-lordish {
-  font-family: var(--font-lordish);
+.font-gothique {
+  font-family: var(--font-gothique);
 }
 
 .font-sans-clean {
@@ -122,18 +122,22 @@
   filter: url(#gothic-text-chalk) drop-shadow(0 2px 10px rgba(0, 0, 0, 0.94));
 }
 
-/* Antique Silver-Ash Metallic Shading + Chalk-Stipple Filter for iCiel Lordish Headings */
-.gothic-lordish-chalk {
+/* Antique Silver-Ash Matte Shading + Weathered Chalk-Print Texture for A Gothique Time */
+.gothic-time-chalk {
   display: inline-block;
-  padding-top: 0.34em;
-  padding-bottom: 0.16em;
-  margin-top: -0.34em;
-  margin-bottom: -0.16em;
-  background: linear-gradient(180deg, #cbcdd6 0%, #aeb0ba 52%, #8e909a 100%);
+  padding-top: 0.24em;
+  padding-bottom: 0.26em;
+  padding-left: 0.18em;
+  padding-right: 0.18em;
+  margin-top: -0.24em;
+  margin-bottom: -0.26em;
+  margin-left: -0.18em;
+  margin-right: -0.18em;
+  background: linear-gradient(180deg, #c0c2cc 0%, #a2a4ae 55%, #82848e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: url(#gothic-text-chalk) drop-shadow(0 2px 12px rgba(0, 0, 0, 0.95));
+  filter: url(#gothic-chalk-print) drop-shadow(0 2px 12px rgba(0, 0, 0, 0.95));
 }
 
 /* Tall, Ultra-Condensed Hairline Victorian Serif Lockup (Memento Mori Proportion) */
@@ -172,10 +176,10 @@
   border-image-repeat: round;
 }
 
-/* Unified 9-Slice Gothic Frame Adapted for Character Detail Modal */
+/* Unified 9-Slice Gothic Frame Adapted for Character Detail Modal (1:1 cqw Mobile <-> Web/Device) */
 .gothic-modal-unified-frame {
   border-style: solid;
-  border-width: clamp(82px, 21vmin, 155px);
+  border-width: 22cqw;
   border-image-source: url('/assets/aistudio/gothic_unified_9slice.png?v=2');
   border-image-slice: 360 360 360 360;
   border-image-repeat: round;
@@ -315,7 +319,7 @@
 /* Keep floating music widget legible at 1:1 mobile scale in Chrome Desktop / Device portrait mode */
 @media (min-width: 600px) and (orientation: portrait) {
   .music-widget-scale {
-    transform: scale(1.9);
+    transform: scale(2.05);
     transform-origin: bottom left;
   }
 }

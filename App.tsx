@@ -11,6 +11,7 @@ import {
   GothicArchHeaderOrnament,
   GothicFilmGrainOverlay,
   GothicLayeredEntranceBackdrop,
+  GothicTwinStarIcon,
 } from './components/GothicOrnaments';
 import { AuthenticPhotoFrame } from './components/AuthenticPhotoFrame';
 import { AddCharacterModal } from './components/AddCharacterModal';
@@ -30,7 +31,7 @@ const STORAGE_KEY_FLOWERS = 'runga_da_xam_flower_tributes_v2';
 const STORAGE_KEY_OFFERED = 'runga_da_xam_offered_map_v2';
 
 function WhiteChrysanthemumIcon({
-  className = 'h-3.5 w-3.5 sm:h-4 sm:w-4',
+  className = 'h-4 w-4',
   filled = false,
 }: {
   className?: string;
@@ -378,63 +379,63 @@ function AppContent() {
           spectralMotionEnabled={false}
         />
 
-        {/* Cohesive, Uncluttered Gothic Centerpiece Harmonized with the Outer Frame */}
-        <main className="entrance-container gothic-chalk-print relative z-20 mx-auto flex w-full flex-col items-center text-center">
-          {/* 1. Stippled Botanical Crest Matching the 4 Frame Corners */}
-          <GothicArchHeaderOrnament className="entrance-crest opacity-95" />
+        {/* Cohesive, Uncluttered Gothic Centerpiece Harmonized with the Inner Pages' Matte Silver-Ash Chalk Palette */}
+        <main className="entrance-container relative z-20 mx-auto flex w-full flex-col items-center text-center">
+          {/* 1. Stippled Botanical Crest Matching the 4 Frame Corners & Inner Ornaments */}
+          <GothicArchHeaderOrnament className="entrance-crest gothic-chalk-print opacity-88" />
 
           {/* 2. Category Overline ("Nghĩa Trang") */}
-          <div className="entrance-overline flex items-center justify-center font-serif-title font-medium text-[#e4e4eb] uppercase">
-            <span aria-hidden="true" className="text-[0.7em] text-[#c4c4cc]">
+          <div className="entrance-overline gothic-text-chalk flex items-center justify-center font-serif-title font-medium text-[#b8b8c2] uppercase">
+            <span aria-hidden="true" className="text-[0.7em] text-[#9a9aa4]">
               ✦
             </span>
             <span>Nghĩa Trang</span>
-            <span aria-hidden="true" className="text-[0.7em] text-[#c4c4cc]">
+            <span aria-hidden="true" className="text-[0.7em] text-[#9a9aa4]">
               ✦
             </span>
           </div>
 
-          {/* 3. Proper Cemetery Name ("Cổ Rừng Đá Xám") — Single Line Always, Beautifully Scaled */}
-          <h1 className="font-serif-title entrance-title whitespace-nowrap font-normal text-[#e6e6ec] uppercase">
+          {/* 3. Proper Cemetery Name ("Cổ Rừng Đá Xám") — Matched 1:1 with Inner Matte Silver-Ash Chalk Filter */}
+          <h1 className="font-serif-title gothic-time-chalk entrance-title whitespace-nowrap font-normal uppercase">
             Cổ Rừng Đá Xám
           </h1>
 
           {/* 4. Delicate Tapered Hairline & 4-Pointed Star Divider */}
           <div
             aria-hidden="true"
-            className="entrance-divider flex w-full items-center justify-center text-[#c8c8ce]/80"
+            className="entrance-divider gothic-chalk-print flex w-full items-center justify-center text-[#b0b0ba]/80"
           >
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#a1a1aa]/55 to-[#d8d8de]/85" />
-            <span className="text-[0.85em] leading-none text-[#d8d8de]">✦</span>
-            <div className="h-px flex-1 bg-gradient-to-l from-transparent via-[#a1a1aa]/55 to-[#d8d8de]/85" />
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#9898a2]/45 to-[#b8b8c2]/75" />
+            <span className="text-[0.85em] leading-none text-[#b4b4be]">✦</span>
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent via-[#9898a2]/45 to-[#b8b8c2]/75" />
           </div>
 
-          {/* 5. Original Literary Quote — Clearly Legible, Large on Web, Harmonious Spacing */}
-          <p className="entrance-quote font-serif-title font-light italic text-[#dedee5]">
+          {/* 5. Original Literary Quote — Synchronized Chalk-Ash Tone with Inner Quotes */}
+          <p className="entrance-quote gothic-text-chalk font-serif-title font-light italic text-[#b8b8c2]">
             “Nơi sương mù khâu lại những vết sẹo của thời gian, và tuyết trắng
             chôn vùi những cái tên chưa từng được gọi thành lời.”
           </p>
 
           {/* 6. Single Entrance Button ("BƯỚC VÀO NGHĨA TRANG") */}
-          <div className="entrance-buttons-wrap flex flex-wrap items-center justify-center">
+          <div className="entrance-buttons-wrap gothic-chalk-print flex flex-wrap items-center justify-center">
             <button
               type="button"
               onClick={() => {
                 setActiveView('gatekeeper');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="entrance-button group relative cursor-pointer whitespace-nowrap border border-[#c8c8ce]/55 bg-[#050507]/85 transition-all duration-300 hover:border-[#ececef] hover:bg-[#111115]"
+              className="entrance-button group relative cursor-pointer whitespace-nowrap border border-[#b4b4be]/50 bg-[#050507]/85 transition-all duration-300 hover:border-[#dcdce4] hover:bg-[#111115]"
             >
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60 md:inset-[3.5px]"
+                className="pointer-events-none absolute inset-[calc(var(--u)*0.65)] border border-[#9898a2]/28 transition-colors duration-300 group-hover:border-[#c8c8d2]/55"
               />
-              <span className="entrance-button-text relative z-10 flex items-center justify-center font-serif-title font-normal text-[#e4e4ea] uppercase group-hover:text-white">
-                <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
+              <span className="entrance-button-text relative z-10 flex items-center justify-center font-serif-title font-normal text-[#c8c8d2] uppercase group-hover:text-[#ececf2]">
+                <span className="text-[0.75em] text-[#9898a2] transition-transform duration-300 group-hover:scale-125 group-hover:text-[#ececf2]">
                   ✦
                 </span>
                 <span>Bước Vào Nghĩa Trang</span>
-                <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
+                <span className="text-[0.75em] text-[#9898a2] transition-transform duration-300 group-hover:scale-125 group-hover:text-[#ececf2]">
                   ✦
                 </span>
               </span>
@@ -608,35 +609,19 @@ function hasVietnameseDiacritics(str: string): boolean {
       />
 
       {/* KHUNG VÒM GOTHIC CỔ ĐIỂN ĐỒNG BỘ MÀU BẠC PHẤN (#E2E2E6) & HIỆU ỨNG NHIỄU HẠT — DÙNG CONTAINER QUERY (cqw) ĐỒNG BỘ TỶ LỆ 1:1 MOBILE & WEB/DEVICE */}
-      <div className="relative z-10 mx-auto my-1 min-h-[calc(100vh-8px)] w-[calc(100%-4px)] max-w-[940px] overflow-hidden [container-type:inline-size] sm:my-3 sm:min-h-[calc(100vh-24px)]">
+      <div className="relative z-10 mx-auto my-1.5 min-h-[calc(100vh-12px)] w-[calc(100%-4px)] max-w-[940px] overflow-hidden [container-type:inline-size]">
         {/* Cấu trúc Vòm Gothic 3 nhịp — Cột xoắn thả lửng — Thân cột mảnh — Chân đế hoa văn nối liền mạch */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-10 flex flex-col opacity-92"
         >
-          {/* 1. Toàn bộ vòm Gothic & cột xoắn thả lửng nguyên bản + 2 cọng ăng ten treo chính xác ngay đầu mũi vòm trong */}
+          {/* 1. Toàn bộ vòm Gothic & cột xoắn thả lửng nguyên bản */}
           <div className="relative w-full shrink-0">
             <img
               src="/assets/aistudio/gothic_cathedral_arch_top.png?v=12"
               alt=""
               referrerPolicy="no-referrer"
               className="block h-auto w-full select-none"
-            />
-            {/* Cọng ăng ten trái treo đúng ngay mũi vòm trong bên trái (x=29.32%, y=32.1%) */}
-            <img
-              src="/assets/aistudio/gothic_hanging_antenna.png?v=2"
-              alt=""
-              aria-hidden="true"
-              referrerPolicy="no-referrer"
-              className="gothic-chalk-print pointer-events-none absolute top-[32.1%] left-[29.32%] h-auto w-[5.5%] -translate-x-1/2 object-contain opacity-92 select-none"
-            />
-            {/* Cọng ăng ten phải treo đúng ngay mũi vòm trong bên phải (x=70.66%, y=31.9%) */}
-            <img
-              src="/assets/aistudio/gothic_hanging_antenna.png?v=2"
-              alt=""
-              aria-hidden="true"
-              referrerPolicy="no-referrer"
-              className="gothic-chalk-print pointer-events-none absolute top-[31.9%] left-[70.66%] h-auto w-[5.5%] -translate-x-1/2 -scale-x-100 object-contain opacity-92 select-none"
             />
           </div>
 
@@ -673,49 +658,109 @@ function hasVietnameseDiacritics(str: string): boolean {
           />
         </div>
 
-        {/* NỬA DƯỚI: BIÊN NIÊN SỬ & VĂN BIA LINH HỒN — NẰM GỌN TRONG LÒNG CỘT VÒM (1:1 cqw) */}
-        <main className="relative z-20 mx-auto px-[9.5%] pt-[3.6cqw] pb-[26cqw]">
-          {/* Phần hoa văn đèn chùm gương bầu dục đối xứng đặt trên chữ Biên niên sử */}
-          <div className="mb-[5.2cqw] flex flex-col items-center text-center">
-            <div className="mb-[0.8cqw] flex items-center justify-center">
+        {/* NỬA DƯỚI: GỬI NGƯỜI VIẾNG THĂM -> HƯỚNG DẪN -> KIẾM NGANG -> BIÊN NIÊN SỬ (NHỊP THƯA EDITORIAL 1:1 cqw) */}
+        <main className="relative z-20 mx-auto px-[9.5%] pt-[4cqw] pb-[26cqw]">
+          {/* Hoa văn xoắn chấm khắc cổ thanh mảnh kèm cặp chấm đôi hai bên phía trên "GỬI NGƯỜI VIẾNG THĂM" */}
+          <div className="mx-auto mb-[7.2cqw] flex items-center justify-center gap-[4.6cqw] select-none">
+            <span
+              aria-hidden="true"
+              className="text-[1.8cqw] leading-none tracking-[0.4em] text-[#9898a2]/70"
+            >
+              ••
+            </span>
+            <img
+              src="/assets/aistudio/gothic_visitor_ornament.png?v=1"
+              alt=""
+              aria-hidden="true"
+              referrerPolicy="no-referrer"
+              className="gothic-chalk-print h-auto w-[10.4cqw] object-contain opacity-85"
+            />
+            <span
+              aria-hidden="true"
+              className="text-[1.8cqw] leading-none tracking-[0.4em] text-[#9898a2]/70"
+            >
+              ••
+            </span>
+          </div>
+
+          {/* Tiêu đề "GỬI NGƯỜI VIẾNG THĂM" đồng bộ cỡ chữ thanh mảnh (2.85cqw) & giãn chữ rộng (0.24em) */}
+          <div className="mb-[5.2cqw] flex flex-col items-center justify-center text-center">
+            <h3 className="font-serif-title gothic-text-chalk flex items-center justify-center gap-[2.8cqw] text-[2.85cqw] leading-none font-normal tracking-[0.24em] whitespace-nowrap text-[#c0c0ca] uppercase">
+              <span aria-hidden="true" className="text-[0.62em] text-[#9a9aa4]">
+                ✦
+              </span>
+              <span>GỬI NGƯỜI VIẾNG THĂM</span>
+              <span aria-hidden="true" className="text-[0.62em] text-[#9a9aa4]">
+                ✦
+              </span>
+            </h3>
+            <img
+              src="/assets/aistudio/gothic_nav_divider.png?v=5"
+              alt=""
+              aria-hidden="true"
+              referrerPolicy="no-referrer"
+              className="mt-[2.4cqw] h-auto w-[28cqw] object-contain opacity-78 select-none"
+            />
+          </div>
+
+          {/* Lời dặn trước khi đọc văn bia — phóng to rõ nét hơn mà vẫn giữ khoảng thở thoáng */}
+          <div
+            className="font-literary gothic-text-chalk mx-auto mb-[8.8cqw] max-w-[90%] text-justify text-[3.15cqw] leading-[1.72] font-normal tracking-[0.01em] text-[#c2c2cc]"
+            style={{ textAlign: 'justify', textAlignLast: 'left' }}
+          >
+            <p className="text-justify">
+              trước khi bắt đầu đọc văn bia, tình hãy đặt một nhành bông bạch
+              cúc trước mộ phần của người đã khuất. mỗi văn bia đều có lá thư
+              gửi &quot;thân yêu&quot;, tình nhấn vào đó sẽ kết nối với linh hồn
+              tình muốn gặp gỡ.
+            </p>
+          </div>
+
+          {/* Hoa văn kiếm ngang dây xích Gothic thanh mảnh đặt phía trên chữ Biên niên sử */}
+          <div className="mb-[6.5cqw] flex flex-col items-center text-center">
+            <div className="mb-[5.2cqw] flex items-center justify-center">
               <img
-                src="/assets/aistudio/gothic_chandelier_crest.png?v=3"
+                src="/assets/aistudio/gothic_chronicle_sigil_divider.png?v=1"
                 alt=""
                 aria-hidden="true"
                 referrerPolicy="no-referrer"
-                className="gothic-chalk-print h-auto w-[34cqw] object-contain opacity-95"
+                className="gothic-chalk-print h-auto w-[48cqw] object-contain opacity-90 select-none"
               />
             </div>
 
-            <h2 className="font-lordish gothic-lordish-chalk text-[10.4cqw] leading-[0.98] font-normal tracking-[0.01em] whitespace-nowrap">
-              Biên niên sử
-            </h2>
-            <p className="font-serif-title gothic-text-chalk mt-[1.2cqw] text-[2.85cqw] leading-[1.35] tracking-[0.14em] text-[#b4b4be] uppercase">
+            <div className="flex items-center justify-center gap-[4.2cqw]">
+              <GothicTwinStarIcon className="h-[4cqw] w-[4.5cqw] opacity-80 drop-shadow-[0_0_4px_rgba(210,210,222,0.3)]" />
+              <h2 className="font-gothique gothic-time-chalk text-[14.4cqw] leading-[1.06] font-normal tracking-[0.03em] whitespace-nowrap">
+                Chronicles
+              </h2>
+              <GothicTwinStarIcon className="h-[4cqw] w-[4.5cqw] -scale-x-100 opacity-80 drop-shadow-[0_0_4px_rgba(210,210,222,0.3)]" />
+            </div>
+            <p className="font-serif-title gothic-text-chalk mt-[2cqw] text-[2.45cqw] leading-[1.35] tracking-[0.2em] text-[#b0b0ba] uppercase">
               {searchQuery.trim()
                 ? `${activeRealmTitle} · Tìm thấy ${realmCharacters.length} linh hồn khớp với “${searchQuery.trim()}”`
                 : `${activeRealmTitle} · ${realmCharacters.length} linh hồn an nghỉ`}
             </p>
 
-            {/* Thanh tìm kiếm & Khung Yên Giấc Ngàn Thu chuẩn viền kép Gothic */}
-            <div className="mt-[5.2cqw] flex w-full flex-col items-stretch justify-between gap-[2.5cqw] sm:flex-row sm:items-center sm:gap-[2.2cqw]">
+            {/* Thanh tìm kiếm & Khung Yên Giấc Ngàn Thu chuẩn viền kép Gothic — đồng bộ 1:1 Mobile & Web/Device */}
+            <div className="mt-[6.8cqw] flex w-full flex-col items-stretch justify-between gap-[2.5cqw]">
               <div className="relative flex-1 border border-[#c8c8ce]/40 bg-[#050507]/90 transition-colors focus-within:border-[#e4e4ec]/80">
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/20 sm:inset-[3px]"
+                  className="pointer-events-none absolute inset-[0.7cqw] border border-[#a1a1aa]/20"
                 />
-                <Search className="pointer-events-none absolute top-1/2 left-[3.2cqw] z-10 h-[3.6cqw] w-[3.6cqw] -translate-y-1/2 text-[#9898a2] sm:left-[2cqw] sm:h-[2.2cqw] sm:w-[2.2cqw]" />
+                <Search className="pointer-events-none absolute top-1/2 left-[3.2cqw] z-10 h-[3.6cqw] w-[3.6cqw] -translate-y-1/2 text-[#9898a2]" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={`Tìm kiếm văn bia trong ${activeRealmTitle}...`}
-                  className="font-serif-title relative z-10 w-full bg-transparent py-[2.6cqw] pr-[8cqw] pl-[9cqw] text-[3.1cqw] tracking-[0.03em] text-[#dcdce4] placeholder:italic placeholder:text-[#84848e] focus:outline-none sm:py-[2cqw] sm:pr-[4.5cqw] sm:pl-[5.6cqw] sm:text-[1.95cqw]"
+                  className="font-serif-title relative z-10 w-full bg-transparent py-[2.6cqw] pr-[8cqw] pl-[9cqw] text-[3.1cqw] tracking-[0.03em] text-[#dcdce4] placeholder:italic placeholder:text-[#84848e] focus:outline-none"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="absolute top-1/2 right-[3cqw] z-20 -translate-y-1/2 cursor-pointer p-1 text-[3cqw] text-[#9898a2] hover:text-white sm:right-[2cqw] sm:text-[2.1cqw]"
+                    className="absolute top-1/2 right-[3cqw] z-20 -translate-y-1/2 cursor-pointer p-[0.8cqw] text-[3cqw] text-[#9898a2] hover:text-white"
                     title="Xóa tìm kiếm"
                     aria-label="Xóa tìm kiếm"
                   >
@@ -725,10 +770,10 @@ function hasVietnameseDiacritics(str: string): boolean {
               </div>
 
               {/* Khung trang trí nghĩa trang đồng bộ viền kép Gothic */}
-              <div className="font-serif-title gothic-chalk-print relative inline-flex shrink-0 items-center justify-center gap-[1.8cqw] border border-[#c8c8ce]/40 bg-[#050507]/90 px-[4cqw] py-[2.6cqw] text-[2.85cqw] tracking-[0.12em] text-[#dcdce4] uppercase select-none sm:gap-[1.3cqw] sm:px-[2.8cqw] sm:py-[2cqw] sm:text-[1.95cqw]">
+              <div className="font-serif-title gothic-chalk-print relative inline-flex shrink-0 items-center justify-center gap-[1.8cqw] border border-[#c8c8ce]/40 bg-[#050507]/90 px-[4cqw] py-[2.6cqw] text-[2.85cqw] tracking-[0.12em] text-[#dcdce4] uppercase select-none">
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/20 sm:inset-[3px]"
+                  className="pointer-events-none absolute inset-[0.7cqw] border border-[#a1a1aa]/20"
                 />
                 <span className="text-[0.75em] text-[#9e9ea8]">
                   ✦
@@ -741,28 +786,28 @@ function hasVietnameseDiacritics(str: string): boolean {
             </div>
           </div>
 
-          {/* Danh sách Bia Mộ Nhân Vật đóng khung Gothic Reliquary */}
+          {/* Danh sách Bia Mộ Nhân Vật đóng khung Gothic Reliquary — đồng bộ 1:1 Mobile & Web/Device */}
           <section className="space-y-[6cqw]">
             {realmCharacters.length === 0 ? (
-              <div className="relative border border-[#c8c8ce]/35 bg-[#050507]/92 p-8 text-center sm:p-12">
+              <div className="relative border border-[#c8c8ce]/35 bg-[#050507]/92 p-[7.5cqw] text-center">
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-[3px] border border-[#a1a1aa]/20 sm:inset-[4px]"
+                  className="pointer-events-none absolute inset-[0.85cqw] border border-[#a1a1aa]/20"
                 />
-                <div className="relative z-10 mx-auto mb-3 flex h-8 w-8 items-center justify-center border border-[#c8c8ce]/35 text-[#b8b8c2]">
+                <div className="relative z-10 mx-auto mb-[3cqw] flex h-[8cqw] w-[8cqw] items-center justify-center border border-[#c8c8ce]/35 text-[3.4cqw] text-[#b8b8c2]">
                   ✦
                 </div>
-                <h3 className="font-serif-title relative z-10 text-lg tracking-[0.08em] text-[#e6e6ec] uppercase sm:text-2xl">
+                <h3 className="font-serif-title relative z-10 text-[4.4cqw] tracking-[0.08em] text-[#e6e6ec] uppercase">
                   Không tìm thấy văn bia phù hợp
                 </h3>
-                <p className="font-sans-clean relative z-10 mt-2 text-[11px] text-[#9a9a9a] sm:text-base">
+                <p className="font-sans-clean relative z-10 mt-[2cqw] text-[2.9cqw] text-[#9a9a9a]">
                   Không có linh hồn nào khớp với từ khóa “{searchQuery}” trong{' '}
                   {activeRealmTitle}.
                 </p>
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="font-serif-title relative z-10 mt-4 inline-flex cursor-pointer items-center gap-1.5 border border-[#c8c8ce]/45 bg-[#0c0c10] px-4 py-1.5 text-[11.5px] tracking-[0.08em] text-[#e5e5e5] uppercase hover:border-white hover:bg-[#15151c] sm:text-sm"
+                  className="font-serif-title relative z-10 mt-[4cqw] inline-flex cursor-pointer items-center gap-[1.5cqw] border border-[#c8c8ce]/45 bg-[#0c0c10] px-[4cqw] py-[1.8cqw] text-[2.9cqw] tracking-[0.08em] text-[#e5e5e5] uppercase hover:border-white hover:bg-[#15151c]"
                 >
                   <span>✕</span>
                   <span>Xóa bộ lọc tìm kiếm</span>
@@ -785,16 +830,16 @@ function hasVietnameseDiacritics(str: string): boolean {
                   <article
                     key={char.id}
                     onClick={() => handleTryOpenCharacter(char)}
-                    className="group relative cursor-pointer border border-[#c8c8ce]/35 bg-[#050507]/92 p-[4.2cqw] shadow-[0_12px_34px_rgba(0,0,0,0.85)] transition-all duration-300 hover:border-[#e4e4ec]/70 hover:bg-[#09090d] sm:p-[4.5cqw]"
+                    className="group relative cursor-pointer border border-[#c8c8ce]/35 bg-[#050507]/92 p-[4.2cqw] shadow-[0_12px_34px_rgba(0,0,0,0.85)] transition-all duration-300 hover:border-[#e4e4ec]/70 hover:bg-[#09090d]"
                   >
                     {/* Viền khắc kép Gothic bên trong mỗi thẻ văn bia */}
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-[3px] border border-[#a1a1aa]/20 transition-colors duration-300 group-hover:border-[#d4d4d8]/40 sm:inset-[4px]"
+                      className="pointer-events-none absolute inset-[0.85cqw] border border-[#a1a1aa]/20 transition-colors duration-300 group-hover:border-[#d4d4d8]/40"
                     />
 
-                    <div className="font-serif-title relative z-10 flex flex-wrap items-center justify-between gap-2 border-b border-white/12 pb-[2.5cqw] text-[2.7cqw] tracking-[0.11em] text-[#a8a8b2] uppercase sm:border-white/15 sm:pb-[2.2cqw] sm:text-[2.15cqw]">
-                      <div className="flex items-center gap-[2cqw] sm:gap-[1.4cqw]">
+                    <div className="font-serif-title relative z-10 flex flex-wrap items-center justify-between gap-[2cqw] border-b border-white/12 pb-[2.5cqw] text-[2.7cqw] tracking-[0.11em] text-[#a8a8b2] uppercase">
+                      <div className="flex items-center gap-[2cqw]">
                         <span className="font-tabular text-[#e2e2ea]">
                           {formattedNo}
                         </span>
@@ -814,10 +859,10 @@ function hasVietnameseDiacritics(str: string): boolean {
                       <span>{activeRealmTitle}</span>
                     </div>
 
-                    <div className="relative z-10 mt-[4cqw] grid grid-cols-1 gap-[4cqw] sm:mt-[3.5cqw] sm:grid-cols-12 sm:gap-[3.8cqw]">
+                    <div className="relative z-10 mt-[4cqw] grid grid-cols-1 gap-[4cqw]">
                       {/* Portrait */}
-                      <div className="sm:col-span-5">
-                        <div className="relative aspect-square w-full overflow-hidden border border-[#c8c8ce]/30 bg-[#0d0d10] p-1 sm:p-1.5">
+                      <div>
+                        <div className="relative aspect-square w-full overflow-hidden border border-[#c8c8ce]/30 bg-[#0d0d10] p-[1cqw]">
                           <div className="h-full w-full overflow-hidden bg-[#101010]">
                             <AuthenticPhotoFrame
                               image={char.avatar}
@@ -830,7 +875,7 @@ function hasVietnameseDiacritics(str: string): boolean {
                         </div>
 
                         {char.gallery.length > 0 && (
-                          <div className="mt-2 grid grid-cols-3 gap-1.5 sm:mt-2.5 sm:gap-2">
+                          <div className="mt-[2cqw] grid grid-cols-3 gap-[1.5cqw]">
                             {char.gallery.slice(0, 3).map((gImg, gIdx) => (
                               <div
                                 key={gIdx}
@@ -850,16 +895,16 @@ function hasVietnameseDiacritics(str: string): boolean {
                       </div>
 
                       {/* Lore & Bio */}
-                      <div className="flex flex-col justify-between text-left sm:col-span-7">
+                      <div className="flex flex-col justify-between text-left">
                         <div>
-                          <h3 className="gothic-chalk-print font-serif-title text-[5.2cqw] leading-tight font-normal tracking-[0.11em] text-[#e6e6ec] uppercase sm:text-[4.4cqw] sm:tracking-[0.13em]">
+                          <h3 className="gothic-chalk-print font-serif-title text-[5.2cqw] leading-tight font-normal tracking-[0.11em] text-[#e6e6ec] uppercase">
                             {char.name}
                           </h3>
-                          <p className="font-serif-title mt-[1cqw] text-[3.4cqw] font-light italic text-[#d0d0d6] sm:mt-[1cqw] sm:text-[2.8cqw]">
+                          <p className="font-serif-title mt-[1cqw] text-[3.4cqw] font-light italic text-[#d0d0d6]">
                             “{char.alias}”
                           </p>
 
-                          <div className="font-sans-clean mt-[3cqw] flex flex-wrap items-center gap-x-[2.5cqw] gap-y-1 border-y border-white/10 py-[2cqw] text-[2.6cqw] text-[#cccccc] sm:mt-[2.4cqw] sm:gap-x-[1.8cqw] sm:border-white/15 sm:py-[1.6cqw] sm:text-[2.15cqw]">
+                          <div className="font-sans-clean mt-[3cqw] flex flex-wrap items-center gap-x-[2.5cqw] gap-y-[1cqw] border-y border-white/12 py-[2cqw] text-[2.6cqw] text-[#cccccc]">
                             <span>{char.age}</span>
                             <span
                               aria-hidden="true"
@@ -871,7 +916,7 @@ function hasVietnameseDiacritics(str: string): boolean {
                           </div>
 
                           <blockquote
-                            className="font-sans-clean mt-[3cqw] text-justify text-[2.9cqw] leading-[1.65] font-light italic text-[#dcdce2] sm:mt-[2.4cqw] sm:text-[2.3cqw] sm:leading-[1.72]"
+                            className="font-sans-clean mt-[3cqw] text-justify text-[2.9cqw] leading-[1.65] font-light italic text-[#dcdce2]"
                             style={{
                               textAlign: 'justify',
                               textAlignLast: 'left',
@@ -881,8 +926,8 @@ function hasVietnameseDiacritics(str: string): boolean {
                           </blockquote>
                         </div>
 
-                        <div className="mt-[4cqw] border-t border-white/10 pt-[3cqw] sm:mt-[3.2cqw] sm:border-white/15 sm:pt-[2.2cqw]">
-                          <div className="font-sans-clean flex items-center justify-between gap-2 text-[2.75cqw] sm:text-[2.15cqw]">
+                        <div className="mt-[4cqw] border-t border-white/12 pt-[3cqw]">
+                          <div className="font-sans-clean flex items-center justify-between gap-[2cqw] text-[2.75cqw]">
                             <button
                               type="button"
                               onClick={(e) => handleOfferFlower(e, char.id)}
@@ -891,7 +936,7 @@ function hasVietnameseDiacritics(str: string): boolean {
                                   ? 'Bạn đã đặt nhành bạch cúc viếng thăm ngôi mộ này'
                                   : 'Đặt một nhành bạch cúc viếng thăm để mở khóa văn bia'
                               }
-                              className={`group/flower relative inline-flex cursor-pointer items-center gap-[1.5cqw] py-0.5 text-left transition-all duration-300 select-none sm:gap-[1cqw] ${
+                              className={`group/flower relative inline-flex cursor-pointer items-center gap-[1.5cqw] py-[0.5cqw] text-left transition-all duration-300 select-none ${
                                 hasOffered
                                   ? 'text-[#e8e8ee] hover:text-white'
                                   : isLockedWarning
@@ -911,7 +956,7 @@ function hasVietnameseDiacritics(str: string): boolean {
                                 }`}
                               >
                                 <WhiteChrysanthemumIcon
-                                  className="h-[3.6cqw] w-[3.6cqw] sm:h-[2.4cqw] sm:w-[2.4cqw]"
+                                  className="h-[3.6cqw] w-[3.6cqw]"
                                   filled={hasOffered}
                                 />
                               </span>
@@ -941,7 +986,7 @@ function hasVietnameseDiacritics(str: string): boolean {
                           </div>
 
                           {isLockedWarning && !hasOffered && (
-                            <p className="font-serif-title mt-[2cqw] text-[2.85cqw] italic tracking-[0.04em] text-[#d8d8e2] sm:mt-[1.5cqw] sm:text-[2.05cqw]">
+                            <p className="font-serif-title mt-[2cqw] text-[2.85cqw] italic tracking-[0.04em] text-[#d8d8e2]">
                               ✦ Xin khách viếng thăm hãy đặt một nhành bạch cúc trước khi đọc văn bia ✦
                             </p>
                           )}
@@ -954,10 +999,10 @@ function hasVietnameseDiacritics(str: string): boolean {
             )}
           </section>
 
-          {/* Ba khung liên kết ở đáy trang trong — Đồng bộ 100% style, tỷ lệ cqw & hiệu ứng gothic-chalk-print với khung Bước Vào Nghĩa Trang ở màn hình chính */}
+          {/* Ba khung liên kết ở đáy trang trong — Đồng bộ 100% style, tỷ lệ cqw & hiệu ứng gothic-chalk-print giữa Mobile & Web/Device */}
           <footer
             aria-label="Liên kết lối đi"
-            className="mt-[10cqw] border-t border-white/10 pt-[8cqw] sm:border-white/15"
+            className="mt-[10cqw] border-t border-white/12 pt-[8cqw]"
           >
             <div className="gothic-chalk-print flex flex-wrap items-center justify-center gap-[2.5cqw]">
               <a
@@ -968,7 +1013,7 @@ function hasVietnameseDiacritics(str: string): boolean {
               >
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60 sm:inset-[3.5px]"
+                  className="pointer-events-none absolute inset-[0.7cqw] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60"
                 />
                 <span className="relative z-10 flex items-center justify-center gap-[1.4cqw] font-serif-title text-[2.45cqw] font-normal tracking-[0.11em] text-[#e4e4ea] uppercase group-hover:text-white">
                   <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
@@ -989,7 +1034,7 @@ function hasVietnameseDiacritics(str: string): boolean {
               >
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60 sm:inset-[3.5px]"
+                  className="pointer-events-none absolute inset-[0.7cqw] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60"
                 />
                 <span className="relative z-10 flex items-center justify-center gap-[1.4cqw] font-serif-title text-[2.45cqw] font-normal tracking-[0.11em] text-[#e4e4ea] uppercase group-hover:text-white">
                   <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">
@@ -1010,7 +1055,7 @@ function hasVietnameseDiacritics(str: string): boolean {
               >
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-[2.5px] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60 sm:inset-[3.5px]"
+                  className="pointer-events-none absolute inset-[0.7cqw] border border-[#a1a1aa]/30 transition-colors duration-300 group-hover:border-[#d4d4d8]/60"
                 />
                 <span className="relative z-10 flex items-center justify-center gap-[1.4cqw] font-serif-title text-[2.45cqw] font-normal tracking-[0.11em] text-[#e4e4ea] uppercase group-hover:text-white">
                   <span className="text-[0.75em] text-[#a1a1aa] transition-transform duration-300 group-hover:scale-125 group-hover:text-white">

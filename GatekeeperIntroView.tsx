@@ -25,7 +25,7 @@ export const GatekeeperIntroView: React.FC<GatekeeperIntroViewProps> = ({
       />
 
       {/* Khung trang Người Gác Cổng dùng Container Query (cqw) đồng bộ tỷ lệ 1:1 giữa Mobile & Web/Device */}
-      <div className="relative z-10 mx-auto my-1 min-h-[calc(100vh-8px)] w-[calc(100%-4px)] max-w-[940px] overflow-hidden pb-[30cqw] [container-type:inline-size] sm:my-3 sm:min-h-[calc(100vh-24px)]">
+      <div className="relative z-10 mx-auto my-1.5 min-h-[calc(100vh-12px)] w-[calc(100%-4px)] max-w-[940px] overflow-hidden pb-[30cqw] [container-type:inline-size]">
         {/* 4 HOA VĂN GÓC BAROQUE ĐỐI XỨNG (w=27.4% như ref) */}
         <img
           src="/assets/aistudio/gothic_gatekeeper_corner.png?v=1"
@@ -67,9 +67,9 @@ export const GatekeeperIntroView: React.FC<GatekeeperIntroViewProps> = ({
             className="gothic-chalk-print ml-[24.5%] block h-auto w-[68.6%] object-contain opacity-95 select-none"
           />
 
-          {/* Tiêu đề "Người gác cổng" đặt bên trái ngang tầm chuỗi đèn chùm thấp nhất (tỷ lệ 10.8cqw đồng bộ 1:1 Mobile & Web) */}
-          <h1 className="font-lordish gothic-lordish-chalk absolute top-[66.5%] left-[6.5%] overflow-visible pt-[3cqw] pb-[1cqw] text-[10.8cqw] leading-[1.32] font-normal tracking-[0.01em] whitespace-nowrap">
-            Người gác cổng
+          {/* Tiêu đề "Gatekeeper" đồng bộ font A Gothique Time & hiệu ứng khắc phấn với Fairy Tale / Folklore / Chronicles */}
+          <h1 className="font-gothique gothic-time-chalk absolute top-[65.5%] left-[6.5%] overflow-visible py-[0.5cqw] text-[16.4cqw] leading-[1.06] font-normal tracking-[0.03em] whitespace-nowrap">
+            Gatekeeper
           </h1>
 
           {/* Hai câu mở đầu đặt ngay dưới tiêu đề, nằm gọn bên trái mũi đèn chùm phải */}
