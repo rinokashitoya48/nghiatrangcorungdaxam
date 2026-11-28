@@ -254,14 +254,25 @@ function AppContent() {
       }
     );
 
-    syncVisitorOfferedStatus(charIds, (confirmedCharId) => {
-      setOfferedMap((prev) => {
-        if (prev[confirmedCharId]) return prev;
-        return { ...prev, [confirmedCharId]: true };
-      });
-    });
+    syncVisitorOfferedStatus(
+      charIds,
+      offeredMap,
+      (confirmedCharId) => {
+        setOfferedMap((prev) => {
+          if (prev[confirmedCharId]) return prev;
+          return { ...prev, [confirmedCharId]: true };
+        });
+      },
+      (charId, syncedCount) => {
+        setFlowerCounts((prev) => ({
+          ...prev,
+          [charId]: Math.max(prev[charId] || 0, syncedCount),
+        }));
+      }
+    );
 
     return () => unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [characters]);
 
   const handleOfferFlower = (e: React.MouseEvent, charId: string) => {
@@ -293,10 +304,13 @@ function AppContent() {
     }));
 
     recordUniqueFlowerOffering(charId)
-      .then(({ alreadyOffered }) => {
-        if (alreadyOffered) {
-          // Visitor already existed in Firestore (e.g. returning via IP fingerprint after clearing cache);
-          // undo the optimistic +1 so count stays strictly 1 per unique visitor.
+      .then(({ alreadyOffered, flowerCount }) => {
+        if (typeof flowerCount === 'number' && flowerCount >= 1) {
+          setFlowerCounts((prev) => ({
+            ...prev,
+            [charId]: flowerCount,
+          }));
+        } else if (alreadyOffered) {
           setFlowerCounts((prev) => ({
             ...prev,
             [charId]: Math.max(1, (prev[charId] || 1) - 1),
@@ -709,9 +723,9 @@ function hasVietnameseDiacritics(str: string): boolean {
             style={{ textAlign: 'justify', textAlignLast: 'left' }}
           >
             <p className="text-justify">
-              tình hãy đặt một nhành bông bạch cúc trước mộ phần người đã
-              khuất rồi mới đọc văn bia. mỗi văn bia đều có lá thư gửi
-              &quot;thân yêu&quot;, tình nhấn vào đó sẽ kết nối với linh hồn
+              trước khi bắt đầu đọc văn bia, tình hãy đặt một nhành bông bạch
+              cúc trước mộ phần của người đã khuất. mỗi văn bia đều có lá thư
+              gửi &quot;thân yêu&quot;, tình nhấn vào đó sẽ kết nối với linh hồn
               tình muốn gặp gỡ.
             </p>
           </div>

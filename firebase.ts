@@ -6,9 +6,7 @@ import {
   getDoc,
   getDocFromServer,
   onSnapshot,
-  setDoc,
-  updateDoc,
-  increment,
+  runTransaction,
   serverTimestamp,
 } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
@@ -87,9 +85,8 @@ async function testConnection() {
 }
 testConnection();
 
-const VISITOR_STORAGE_KEY = 'runga_da_xam_visitor_fingerprint_v2';
-const VISITOR_IP_CACHE_KEY = 'runga_da_xam_visitor_ip_v2';
-const VISITOR_COOKIE_NAME = 'runga_da_xam_vid';
+const VISITOR_STORAGE_KEY = 'runga_da_xam_device_vid_v3';
+const VISITOR_COOKIE_NAME = 'runga_da_xam_vid_v3';
 
 function getCookieVisitorId(): string | null {
   try {
@@ -112,49 +109,30 @@ function setCookieVisitorId(vid: string): void {
   }
 }
 
-function hashStringDeterministic(input: string): string {
-  let h1 = 0xdeadbeef ^ input.length;
-  let h2 = 0x41c6ce57 ^ input.length;
-  for (let i = 0, ch; i < input.length; i++) {
-    ch = input.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
+function generateUniqueDeviceToken(): string {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return `vid3_${crypto.randomUUID().replace(/-/g, '')}`;
+    }
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+      const bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+      return `vid3_${hex}`;
+    }
+  } catch {
+    // Fallback below
   }
-  h1 =
-    Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^
-    Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 =
-    Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^
-    Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  const hex1 = (h1 >>> 0).toString(16).padStart(8, '0');
-  const hex2 = (h2 >>> 0).toString(16).padStart(8, '0');
-  return `${hex1}${hex2}`;
-}
-
-function getDeviceSignature(): string {
-  const nav = typeof navigator !== 'undefined' ? navigator : null;
-  const scr = typeof screen !== 'undefined' ? screen : null;
-  const tz =
-    typeof Intl !== 'undefined'
-      ? Intl.DateTimeFormat().resolvedOptions().timeZone || ''
-      : '';
-  const parts = [
-    nav?.userAgent || '',
-    nav?.language || '',
-    String(nav?.hardwareConcurrency || ''),
-    String(nav?.maxTouchPoints || ''),
-    scr ? `${Math.min(scr.width, scr.height)}x${Math.max(scr.width, scr.height)}x${scr.colorDepth}` : '',
-    tz,
-  ];
-  return parts.join('|');
+  const fallbackHex = `${Date.now().toString(16)}${Math.random().toString(16).slice(2, 14)}${Math.random().toString(16).slice(2, 14)}`;
+  return `vid3_${fallbackHex.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 36)}`;
 }
 
 let cachedVisitorIdPromise: Promise<string> | null = null;
 
 /**
- * Resolves a stable, deterministic visitor ID combining public IP + device signature,
- * backed by localStorage and a 1-year cookie so returning visitors are always recognized
- * without needing to log in.
+ * Resolves a persistent unique visitor ID per device/browser stored in both
+ * localStorage and a 1-year cookie so each device contributes its own flower
+ * to the global Firestore total while preventing duplicate clicks on the same device.
  */
 export function resolveVisitorId(): Promise<string> {
   if (cachedVisitorIdPromise) {
@@ -182,49 +160,15 @@ export function resolveVisitorId(): Promise<string> {
       return cookieId;
     }
 
-    let publicIp = '';
+    const newDeviceId = generateUniqueDeviceToken();
+
     try {
-      publicIp = localStorage.getItem(VISITOR_IP_CACHE_KEY) || '';
+      localStorage.setItem(VISITOR_STORAGE_KEY, newDeviceId);
     } catch {
       // ignore
     }
-
-    if (!publicIp) {
-      try {
-        const controller = new AbortController();
-        const timer = window.setTimeout(() => controller.abort(), 1600);
-        const res = await fetch('https://api.ipify.org?format=json', {
-          signal: controller.signal,
-        });
-        window.clearTimeout(timer);
-        if (res.ok) {
-          const data = (await res.json()) as { ip?: string };
-          if (data?.ip) {
-            publicIp = data.ip.trim();
-            try {
-              localStorage.setItem(VISITOR_IP_CACHE_KEY, publicIp);
-            } catch {
-              // ignore
-            }
-          }
-        }
-      } catch {
-        // Fallback to device signature if IP service is unreachable
-      }
-    }
-
-    const rawFingerprint = `${publicIp || 'noip'}::${getDeviceSignature()}`;
-    const hA = hashStringDeterministic(rawFingerprint);
-    const hB = hashStringDeterministic(`salt_runga_da_xam::${rawFingerprint}`);
-    const deterministicId = `v_${hA}${hB}`;
-
-    try {
-      localStorage.setItem(VISITOR_STORAGE_KEY, deterministicId);
-    } catch {
-      // ignore
-    }
-    setCookieVisitorId(deterministicId);
-    return deterministicId;
+    setCookieVisitorId(newDeviceId);
+    return newDeviceId;
   })();
 
   return cachedVisitorIdPromise;
@@ -248,7 +192,7 @@ export function subscribeToCharacterTributes(
         }
       },
       (err) => {
-        console.warn(`Tribute sync warning for ${path}:`, err);
+        handleFirestoreError(err, OperationType.GET, path);
       }
     );
   });
@@ -259,12 +203,15 @@ export function subscribeToCharacterTributes(
 }
 
 /**
- * Checks Firestore to see which characters this visitor (by IP + device fingerprint)
- * has already placed a flower on, restoring their unlocked status across sessions.
+ * Checks Firestore to see which characters this device has already placed a flower on,
+ * and automatically reconciles any locally offered flowers that were not yet persisted
+ * to the global Firestore counter.
  */
 export async function syncVisitorOfferedStatus(
   characterIds: string[],
-  onConfirmedOffered: (charId: string) => void
+  localOfferedMap: Record<string, boolean>,
+  onConfirmedOffered: (charId: string) => void,
+  onCountSynced?: (charId: string, count: number) => void
 ): Promise<void> {
   const visitorId = await resolveVisitorId();
   await Promise.all(
@@ -274,6 +221,14 @@ export async function syncVisitorOfferedStatus(
         const snap = await getDoc(visitorRef);
         if (snap.exists()) {
           onConfirmedOffered(charId);
+        } else if (localOfferedMap[charId]) {
+          // Device previously placed a flower locally before the Firestore transaction fix;
+          // register its +1 into the global Firestore counter now.
+          const res = await recordUniqueFlowerOffering(charId);
+          onConfirmedOffered(charId);
+          if (onCountSynced && typeof res.flowerCount === 'number' && res.flowerCount >= 1) {
+            onCountSynced(charId, res.flowerCount);
+          }
         }
       } catch {
         // Ignore transient offline error
@@ -283,68 +238,67 @@ export async function syncVisitorOfferedStatus(
 }
 
 /**
- * Records a unique 1-time flower offering for (characterId, visitorId).
- * If this visitor already offered a flower to this character, it does NOT increment
- * the counter again, preventing duplicate/fake likes.
+ * Atomically records a unique 1-time flower offering for (characterId, visitorId)
+ * using a Firestore transaction. Creates /tributes/{characterId} with flowerCount = 1
+ * on the very first offering, or increments flowerCount by +1 on subsequent offerings
+ * from new devices.
  */
 export async function recordUniqueFlowerOffering(
   characterId: string
-): Promise<{ alreadyOffered: boolean }> {
+): Promise<{ alreadyOffered: boolean; flowerCount: number }> {
   const visitorId = await resolveVisitorId();
-  const visitorPath = `tributes/${characterId}/visitors/${visitorId}`;
   const tributePath = `tributes/${characterId}`;
 
   const visitorRef = doc(db, 'tributes', characterId, 'visitors', visitorId);
   const tributeRef = doc(db, 'tributes', characterId);
 
   try {
-    const existingVisitorSnap = await getDoc(visitorRef);
-    if (existingVisitorSnap.exists()) {
-      return { alreadyOffered: true };
-    }
-  } catch (err) {
-    handleFirestoreError(err, OperationType.GET, visitorPath);
-  }
+    return await runTransaction(db, async (tx) => {
+      const [visitorSnap, tributeSnap] = await Promise.all([
+        tx.get(visitorRef),
+        tx.get(tributeRef),
+      ]);
 
-  // 1. Create the unique visitor receipt document
-  try {
-    await setDoc(visitorRef, {
-      characterId,
-      visitorId,
-      createdAt: serverTimestamp(),
-    });
-  } catch (err) {
-    // If creation failed because it already exists, treat as already offered
-    const code = (err as { code?: string })?.code || '';
-    if (code === 'permission-denied') {
-      return { alreadyOffered: true };
-    }
-    handleFirestoreError(err, OperationType.CREATE, visitorPath);
-  }
+      const currentCount =
+        tributeSnap.exists() && typeof tributeSnap.data()?.flowerCount === 'number'
+          ? tributeSnap.data().flowerCount
+          : 0;
 
-  // 2. Increment the aggregate flowerCount on /tributes/{characterId} by exactly +1
-  try {
-    await updateDoc(tributeRef, {
-      flowerCount: increment(1),
-      updatedAt: serverTimestamp(),
-    });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    const code = (err as { code?: string })?.code || '';
-    if (code === 'not-found' || message.includes('No document to update')) {
-      try {
-        await setDoc(tributeRef, {
+      if (visitorSnap.exists()) {
+        return {
+          alreadyOffered: true,
+          flowerCount: Math.max(1, currentCount),
+        };
+      }
+
+      const nextCount = currentCount + 1;
+
+      tx.set(visitorRef, {
+        characterId,
+        visitorId,
+        createdAt: serverTimestamp(),
+      });
+
+      if (!tributeSnap.exists()) {
+        tx.set(tributeRef, {
           characterId,
           flowerCount: 1,
           updatedAt: serverTimestamp(),
         });
-      } catch (createErr) {
-        handleFirestoreError(createErr, OperationType.CREATE, tributePath);
+      } else {
+        tx.update(tributeRef, {
+          flowerCount: nextCount,
+          updatedAt: serverTimestamp(),
+        });
       }
-    } else {
-      handleFirestoreError(err, OperationType.UPDATE, tributePath);
-    }
-  }
 
-  return { alreadyOffered: false };
+      return {
+        alreadyOffered: false,
+        flowerCount: nextCount,
+      };
+    });
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, tributePath);
+    throw err;
+  }
 }
