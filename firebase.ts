@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import {
+  initializeFirestore,
   getFirestore,
   doc,
   getDoc,
@@ -8,11 +9,29 @@ import {
   onSnapshot,
   runTransaction,
   serverTimestamp,
+  type Firestore,
 } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+function createFirestoreInstance(): Firestore {
+  try {
+    // Force long polling so mobile networks and in-app browsers (Facebook, Messenger,
+    // Discord, Zalo, iOS Safari) never hang or silently drop writes over WebChannel.
+    return initializeFirestore(
+      app,
+      {
+        experimentalForceLongPolling: true,
+      },
+      firebaseConfig.firestoreDatabaseId
+    );
+  } catch {
+    return getFirestore(app, firebaseConfig.firestoreDatabaseId);
+  }
+}
+
+export const db = createFirestoreInstance();
 export const auth = getAuth(app);
 
 export enum OperationType {
@@ -43,12 +62,12 @@ export interface FirestoreErrorInfo {
   };
 }
 
-export function handleFirestoreError(
+function buildFirestoreErrorInfo(
   error: unknown,
   operationType: OperationType,
   path: string | null
-) {
-  const errInfo: FirestoreErrorInfo = {
+): FirestoreErrorInfo {
+  return {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
       userId: auth.currentUser?.uid,
@@ -67,7 +86,24 @@ export function handleFirestoreError(
     operationType,
     path,
   };
+}
+
+export function logFirestoreError(
+  error: unknown,
+  operationType: OperationType,
+  path: string | null
+): FirestoreErrorInfo {
+  const errInfo = buildFirestoreErrorInfo(error, operationType, path);
   console.error('Firestore Error: ', JSON.stringify(errInfo));
+  return errInfo;
+}
+
+export function handleFirestoreError(
+  error: unknown,
+  operationType: OperationType,
+  path: string | null
+): never {
+  const errInfo = logFirestoreError(error, operationType, path);
   throw new Error(JSON.stringify(errInfo));
 }
 
@@ -87,6 +123,7 @@ testConnection();
 
 const VISITOR_STORAGE_KEY = 'runga_da_xam_device_vid_v3';
 const VISITOR_COOKIE_NAME = 'runga_da_xam_vid_v3';
+const PENDING_OFFERINGS_KEY = 'runga_da_xam_pending_offerings_v3';
 
 function getCookieVisitorId(): string | null {
   try {
@@ -106,6 +143,43 @@ function setCookieVisitorId(vid: string): void {
     )}; path=/; max-age=31536000; SameSite=Lax`;
   } catch {
     // ignore
+  }
+}
+
+function readPendingOfferings(): Record<string, boolean> {
+  try {
+    const raw = localStorage.getItem(PENDING_OFFERINGS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        return parsed;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
+function writePendingOfferings(map: Record<string, boolean>): void {
+  try {
+    localStorage.setItem(PENDING_OFFERINGS_KEY, JSON.stringify(map));
+  } catch {
+    // ignore
+  }
+}
+
+export function markPendingOffering(characterId: string): void {
+  const current = readPendingOfferings();
+  current[characterId] = true;
+  writePendingOfferings(current);
+}
+
+export function clearPendingOffering(characterId: string): void {
+  const current = readPendingOfferings();
+  if (current[characterId]) {
+    delete current[characterId];
+    writePendingOfferings(current);
   }
 }
 
@@ -174,6 +248,50 @@ export function resolveVisitorId(): Promise<string> {
   return cachedVisitorIdPromise;
 }
 
+/**
+ * Fetches authoritative live flower counts directly from the Firestore server
+ * for all character IDs so stale local caches never hide the real global total.
+ */
+export async function fetchCharacterTributes(
+  characterIds: string[]
+): Promise<Record<string, number>> {
+  const results: Record<string, number> = {};
+
+  await Promise.all(
+    characterIds.map(async (charId) => {
+      const path = `tributes/${charId}`;
+      const docRef = doc(db, 'tributes', charId);
+      try {
+        const snap = await getDocFromServer(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          results[charId] =
+            typeof data.flowerCount === 'number' && data.flowerCount >= 0
+              ? data.flowerCount
+              : 0;
+        } else {
+          results[charId] = 0;
+        }
+      } catch (serverErr) {
+        try {
+          const fallbackSnap = await getDoc(docRef);
+          if (fallbackSnap.exists()) {
+            const data = fallbackSnap.data();
+            results[charId] =
+              typeof data.flowerCount === 'number' && data.flowerCount >= 0
+                ? data.flowerCount
+                : 0;
+          }
+        } catch {
+          logFirestoreError(serverErr, OperationType.GET, path);
+        }
+      }
+    })
+  );
+
+  return results;
+}
+
 export function subscribeToCharacterTributes(
   characterIds: string[],
   onCountChange: (charId: string, count: number) => void
@@ -189,10 +307,12 @@ export function subscribeToCharacterTributes(
           if (typeof data.flowerCount === 'number' && data.flowerCount >= 0) {
             onCountChange(charId, data.flowerCount);
           }
+        } else if (!snap.metadata.fromCache) {
+          onCountChange(charId, 0);
         }
       },
       (err) => {
-        handleFirestoreError(err, OperationType.GET, path);
+        logFirestoreError(err, OperationType.GET, path);
       }
     );
   });
@@ -204,8 +324,8 @@ export function subscribeToCharacterTributes(
 
 /**
  * Checks Firestore to see which characters this device has already placed a flower on,
- * and automatically reconciles any locally offered flowers that were not yet persisted
- * to the global Firestore counter.
+ * and automatically reconciles any locally offered or pending flowers that were not yet
+ * persisted to the global Firestore counter.
  */
 export async function syncVisitorOfferedStatus(
   characterIds: string[],
@@ -214,34 +334,50 @@ export async function syncVisitorOfferedStatus(
   onCountSynced?: (charId: string, count: number) => void
 ): Promise<void> {
   const visitorId = await resolveVisitorId();
+  const pendingOfferings = readPendingOfferings();
+
   await Promise.all(
     characterIds.map(async (charId) => {
       try {
         const visitorRef = doc(db, 'tributes', charId, 'visitors', visitorId);
-        const snap = await getDoc(visitorRef);
+        let snap;
+        try {
+          snap = await getDocFromServer(visitorRef);
+        } catch {
+          snap = await getDoc(visitorRef);
+        }
+
         if (snap.exists()) {
+          clearPendingOffering(charId);
           onConfirmedOffered(charId);
-        } else if (localOfferedMap[charId]) {
-          // Device previously placed a flower locally before the Firestore transaction fix;
+        } else if (localOfferedMap[charId] || pendingOfferings[charId]) {
+          // Device previously placed a flower locally or while offline;
           // register its +1 into the global Firestore counter now.
           const res = await recordUniqueFlowerOffering(charId);
+          clearPendingOffering(charId);
           onConfirmedOffered(charId);
           if (onCountSynced && typeof res.flowerCount === 'number' && res.flowerCount >= 1) {
             onCountSynced(charId, res.flowerCount);
           }
         }
       } catch {
-        // Ignore transient offline error
+        // Keep pending offering for retry when network recovers
       }
     })
   );
 }
 
+const MAX_TRANSACTION_ATTEMPTS = 3;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /**
  * Atomically records a unique 1-time flower offering for (characterId, visitorId)
- * using a Firestore transaction. Creates /tributes/{characterId} with flowerCount = 1
- * on the very first offering, or increments flowerCount by +1 on subsequent offerings
- * from new devices.
+ * using a Firestore transaction with automatic retry on transient network/contention errors.
+ * Creates /tributes/{characterId} with flowerCount = 1 on the very first offering, or
+ * increments flowerCount by +1 on subsequent offerings from new devices.
  */
 export async function recordUniqueFlowerOffering(
   characterId: string
@@ -252,53 +388,64 @@ export async function recordUniqueFlowerOffering(
   const visitorRef = doc(db, 'tributes', characterId, 'visitors', visitorId);
   const tributeRef = doc(db, 'tributes', characterId);
 
-  try {
-    return await runTransaction(db, async (tx) => {
-      const [visitorSnap, tributeSnap] = await Promise.all([
-        tx.get(visitorRef),
-        tx.get(tributeRef),
-      ]);
+  let lastError: unknown = null;
 
-      const currentCount =
-        tributeSnap.exists() && typeof tributeSnap.data()?.flowerCount === 'number'
-          ? tributeSnap.data().flowerCount
-          : 0;
+  for (let attempt = 1; attempt <= MAX_TRANSACTION_ATTEMPTS; attempt++) {
+    try {
+      const result = await runTransaction(db, async (tx) => {
+        const [visitorSnap, tributeSnap] = await Promise.all([
+          tx.get(visitorRef),
+          tx.get(tributeRef),
+        ]);
 
-      if (visitorSnap.exists()) {
+        const currentCount =
+          tributeSnap.exists() && typeof tributeSnap.data()?.flowerCount === 'number'
+            ? tributeSnap.data().flowerCount
+            : 0;
+
+        if (visitorSnap.exists()) {
+          return {
+            alreadyOffered: true,
+            flowerCount: Math.max(1, currentCount),
+          };
+        }
+
+        const nextCount = currentCount + 1;
+
+        tx.set(visitorRef, {
+          characterId,
+          visitorId,
+          createdAt: serverTimestamp(),
+        });
+
+        if (!tributeSnap.exists()) {
+          tx.set(tributeRef, {
+            characterId,
+            flowerCount: 1,
+            updatedAt: serverTimestamp(),
+          });
+        } else {
+          tx.update(tributeRef, {
+            flowerCount: nextCount,
+            updatedAt: serverTimestamp(),
+          });
+        }
+
         return {
-          alreadyOffered: true,
-          flowerCount: Math.max(1, currentCount),
+          alreadyOffered: false,
+          flowerCount: nextCount,
         };
-      }
-
-      const nextCount = currentCount + 1;
-
-      tx.set(visitorRef, {
-        characterId,
-        visitorId,
-        createdAt: serverTimestamp(),
       });
 
-      if (!tributeSnap.exists()) {
-        tx.set(tributeRef, {
-          characterId,
-          flowerCount: 1,
-          updatedAt: serverTimestamp(),
-        });
-      } else {
-        tx.update(tributeRef, {
-          flowerCount: nextCount,
-          updatedAt: serverTimestamp(),
-        });
+      clearPendingOffering(characterId);
+      return result;
+    } catch (err) {
+      lastError = err;
+      if (attempt < MAX_TRANSACTION_ATTEMPTS) {
+        await sleep(300 * attempt);
       }
-
-      return {
-        alreadyOffered: false,
-        flowerCount: nextCount,
-      };
-    });
-  } catch (err) {
-    handleFirestoreError(err, OperationType.WRITE, tributePath);
-    throw err;
+    }
   }
+
+  handleFirestoreError(lastError, OperationType.WRITE, tributePath);
 }

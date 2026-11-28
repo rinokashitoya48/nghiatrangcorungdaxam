@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search } from 'lucide-react';
 import {
   INITIAL_CHARACTERS,
@@ -21,13 +21,14 @@ import { GatekeeperIntroView } from './components/GatekeeperIntroView';
 import { AudioProvider } from './context/AudioContext';
 import { BackgroundMusicWidget } from './components/BackgroundMusicWidget';
 import {
+  fetchCharacterTributes,
   subscribeToCharacterTributes,
   syncVisitorOfferedStatus,
   recordUniqueFlowerOffering,
+  markPendingOffering,
 } from './firebase';
 
 const STORAGE_KEY_CHARS = 'runga_da_xam_char_profiles_v19';
-const STORAGE_KEY_FLOWERS = 'runga_da_xam_flower_tributes_v2';
 const STORAGE_KEY_OFFERED = 'runga_da_xam_offered_map_v2';
 
 function WhiteChrysanthemumIcon({
@@ -174,22 +175,7 @@ function AppContent() {
     return INITIAL_CHARACTERS;
   });
 
-  const [flowerCounts, setFlowerCounts] = useState<Record<string, number>>(
-    () => {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY_FLOWERS);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed && typeof parsed === 'object') {
-            return parsed;
-          }
-        }
-      } catch {
-        // ignore
-      }
-      return {};
-    }
-  );
+  const [flowerCounts, setFlowerCounts] = useState<Record<string, number>>({});
 
   const [offeredMap, setOfferedMap] = useState<Record<string, boolean>>(() => {
     try {
@@ -205,6 +191,10 @@ function AppContent() {
     }
     return {};
   });
+
+  const offeredMapRef = useRef<Record<string, boolean>>(offeredMap);
+  offeredMapRef.current = offeredMap;
+  const inFlightOfferingsRef = useRef<Set<string>>(new Set());
 
   const [justOfferedCharId, setJustOfferedCharId] = useState<string | null>(
     null
@@ -228,14 +218,6 @@ function AppContent() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY_FLOWERS, JSON.stringify(flowerCounts));
-    } catch {
-      // ignore
-    }
-  }, [flowerCounts]);
-
-  useEffect(() => {
-    try {
       localStorage.setItem(STORAGE_KEY_OFFERED, JSON.stringify(offeredMap));
     } catch {
       // ignore
@@ -244,9 +226,45 @@ function AppContent() {
 
   useEffect(() => {
     const charIds = characters.map((c) => c.id);
+    let isActive = true;
+
+    const refreshFromServer = () => {
+      fetchCharacterTributes(charIds)
+        .then((remoteCounts) => {
+          if (!isActive) return;
+          setFlowerCounts((prev) => ({
+            ...prev,
+            ...remoteCounts,
+          }));
+        })
+        .catch(() => {
+          // Realtime listener & retry on reconnect will recover
+        });
+
+      syncVisitorOfferedStatus(
+        charIds,
+        offeredMapRef.current,
+        (confirmedCharId) => {
+          if (!isActive) return;
+          setOfferedMap((prev) => {
+            if (prev[confirmedCharId]) return prev;
+            return { ...prev, [confirmedCharId]: true };
+          });
+        },
+        (charId, syncedCount) => {
+          if (!isActive) return;
+          setFlowerCounts((prev) => ({
+            ...prev,
+            [charId]: Math.max(prev[charId] || 0, syncedCount),
+          }));
+        }
+      );
+    };
+
     const unsubscribe = subscribeToCharacterTributes(
       charIds,
       (charId, remoteCount) => {
+        if (!isActive) return;
         setFlowerCounts((prev) => ({
           ...prev,
           [charId]: remoteCount,
@@ -254,25 +272,24 @@ function AppContent() {
       }
     );
 
-    syncVisitorOfferedStatus(
-      charIds,
-      offeredMap,
-      (confirmedCharId) => {
-        setOfferedMap((prev) => {
-          if (prev[confirmedCharId]) return prev;
-          return { ...prev, [confirmedCharId]: true };
-        });
-      },
-      (charId, syncedCount) => {
-        setFlowerCounts((prev) => ({
-          ...prev,
-          [charId]: Math.max(prev[charId] || 0, syncedCount),
-        }));
-      }
-    );
+    refreshFromServer();
 
-    return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const handleOnline = () => refreshFromServer();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshFromServer();
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      isActive = false;
+      unsubscribe();
+      window.removeEventListener('online', handleOnline);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [characters]);
 
   const handleOfferFlower = (e: React.MouseEvent, charId: string) => {
@@ -288,10 +305,13 @@ function AppContent() {
       setLockedNoticeCharId(null);
     }
 
-    // If this visitor already placed a flower on this character, do not add fake likes
-    if (offeredMap[charId]) {
+    // If this device already placed a flower or a write is currently in flight, do not duplicate
+    if (offeredMap[charId] || inFlightOfferingsRef.current.has(charId)) {
       return;
     }
+
+    inFlightOfferingsRef.current.add(charId);
+    markPendingOffering(charId);
 
     setOfferedMap((prev) => ({
       ...prev,
@@ -300,25 +320,23 @@ function AppContent() {
 
     setFlowerCounts((prev) => ({
       ...prev,
-      [charId]: (prev[charId] || 0) + 1,
+      [charId]: (prev[charId] ?? 0) + 1,
     }));
 
     recordUniqueFlowerOffering(charId)
-      .then(({ alreadyOffered, flowerCount }) => {
+      .then(({ flowerCount }) => {
         if (typeof flowerCount === 'number' && flowerCount >= 1) {
           setFlowerCounts((prev) => ({
             ...prev,
             [charId]: flowerCount,
           }));
-        } else if (alreadyOffered) {
-          setFlowerCounts((prev) => ({
-            ...prev,
-            [charId]: Math.max(1, (prev[charId] || 1) - 1),
-          }));
         }
       })
       .catch((err) => {
-        console.warn('Could not persist flower offering to Firestore:', err);
+        console.warn('Could not persist flower offering to Firestore; queued for retry:', err);
+      })
+      .finally(() => {
+        inFlightOfferingsRef.current.delete(charId);
       });
   };
 
@@ -837,7 +855,9 @@ function hasVietnameseDiacritics(str: string): boolean {
                     : `No. ${canonicalIndex}`;
 
                 const hasOffered = Boolean(offeredMap[char.id]);
-                const displayCount = Math.max(1, flowerCounts[char.id] || 1);
+                const rawServerCount = flowerCounts[char.id];
+                const displayCount =
+                  typeof rawServerCount === 'number' ? rawServerCount : 0;
                 const isLockedWarning = lockedNoticeCharId === char.id;
 
                 return (
@@ -978,12 +998,19 @@ function hasVietnameseDiacritics(str: string): boolean {
                                 {hasOffered ? (
                                   <>
                                     <span className="font-tabular font-medium text-[#f2f2f7]">
-                                      {displayCount}
+                                      {Math.max(1, displayCount)}
                                     </span>{' '}
                                     <span>Nhành Bạch Cúc</span>
                                   </>
                                 ) : (
-                                  <span>Đặt Nhành Bạch Cúc</span>
+                                  <>
+                                    <span>Đặt Nhành Bạch Cúc</span>
+                                    {typeof rawServerCount === 'number' && (
+                                      <span className="font-tabular ml-[1.1cqw] text-[#c8c8d2]">
+                                        · {displayCount}
+                                      </span>
+                                    )}
+                                  </>
                                 )}
                               </span>
                             </button>
